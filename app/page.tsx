@@ -34,9 +34,12 @@ export default function Home() {
             <span className="group-hover:translate-x-1 transition-transform">→</span>
           </Link>
 
-          <button className="w-full px-8 py-4 bg-white/10 backdrop-blur-md border border-white/10 text-white font-medium text-lg rounded-2xl hover:bg-white/20 transition duration-200">
-            Scan Label
-          </button>
+          <Link 
+  href="/label" 
+  className="w-full px-8 py-4 bg-white/10 backdrop-blur-md border border-white/10 text-white font-medium text-lg rounded-2xl hover:bg-white/20 transition duration-200 flex items-center justify-center"
+>
+  Scan Label
+</Link>
         </div>
 
         {/* Social Proof / Trust Badge */}
