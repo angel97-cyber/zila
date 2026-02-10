@@ -6,7 +6,7 @@ export default function PrivacyPage() {
 
       <h2 className="text-xl font-bold mt-6 mb-2">1. Introduction</h2>
       <p className="mb-4">
-        WALLS ("we", "our", or "us") operates as a browser extension allowing users to chat on specific URLs. 
+        WALLS (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) operates as a browser extension allowing users to chat on specific URLs. 
         We respect your privacy and are committed to protecting your personal data.
       </p>
 
@@ -15,7 +15,7 @@ export default function PrivacyPage() {
       <ul className="list-disc pl-5 mb-4">
         <li><strong>URL Data:</strong> We detect the hostname (e.g., google.com) of the tab you are visiting to load the correct chat room.</li>
         <li><strong>User Generated Content:</strong> Messages you type and send are stored in our database.</li>
-        <li><strong>Generated IDs:</strong> We assign a random anonymous ID (e.g., "Solar Falcon") to your browser local storage.</li>
+        <li><strong>Generated IDs:</strong> We assign a random anonymous ID (e.g., &quot;Solar Falcon&quot;) to your browser local storage.</li>
       </ul>
 
       <h2 className="text-xl font-bold mt-6 mb-2">3. How We Use Data</h2>
