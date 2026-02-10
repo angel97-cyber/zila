@@ -2,61 +2,47 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
       
-      {/* BACKGROUND EFFECTS (The "Expensive" Look) */}
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-600/30 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-purple-600/30 rounded-full blur-[120px]" />
+      {/* BRANDING */}
+      <div className="text-center mb-12">
+        <h1 className="text-6xl font-black tracking-tighter mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
+          VERIFY
+        </h1>
+        <p className="text-gray-400 uppercase tracking-[0.3em] text-xs">
+          The Trust Layer of Reality
+        </p>
+      </div>
 
-      {/* MAIN CONTENT */}
-      <main className="relative z-10 flex flex-col items-center gap-8 text-center px-4">
+      {/* MAIN ACTIONS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-lg">
         
-        {/* The Brand */}
-        <div className="animate-fade-in-up">
-          <h1 className="text-8xl md:text-9xl font-extrabold tracking-tighter text-white drop-shadow-2xl">
-            ZILA
-          </h1>
-          <p className="mt-4 text-xl md:text-2xl text-gray-400 max-w-lg mx-auto leading-relaxed">
-            The internet of <span className="text-blue-400 font-bold">here</span>.
-            <br />
-            Connect with everyone within 1000m.
+        {/* OPTION 1: REQUEST */}
+        <Link href="/request" className="group relative block p-8 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-blue-500 transition-all duration-300">
+          <div className="absolute top-4 right-4 text-2xl group-hover:scale-110 transition-transform">📍</div>
+          <h2 className="text-2xl font-bold mb-2 text-white">Request</h2>
+          <p className="text-sm text-gray-500">
+            Need eyes somewhere? Drop a pin and offer a bounty.
           </p>
-        </div>
+        </Link>
 
-        {/* The Action Buttons (Glassmorphism) */}
-        <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full max-w-sm">
-          
-          <Link 
-            href="/zone" 
-            className="group relative w-full px-8 py-4 bg-white text-black font-bold text-lg rounded-2xl hover:scale-105 transition duration-200 flex items-center justify-center gap-2 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]"
-          >
-            Enter Zone
-            <span className="group-hover:translate-x-1 transition-transform">→</span>
-          </Link>
+        {/* OPTION 2: SCOUT */}
+        <Link href="/scout" className="group relative block p-8 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-green-500 transition-all duration-300">
+          <div className="absolute top-4 right-4 text-2xl group-hover:scale-110 transition-transform">📸</div>
+          <h2 className="text-2xl font-bold mb-2 text-white">Scout</h2>
+          <p className="text-sm text-gray-500">
+            Earn money by verifying locations near you.
+          </p>
+        </Link>
 
-          <Link 
-  href="/label" 
-  className="w-full px-8 py-4 bg-white/10 backdrop-blur-md border border-white/10 text-white font-medium text-lg rounded-2xl hover:bg-white/20 transition duration-200 flex items-center justify-center"
->
-  Scan Label
-</Link>
-        </div>
+      </div>
 
-        {/* Social Proof / Trust Badge */}
-        <div className="mt-12 flex items-center gap-2 text-sm text-gray-500 bg-white/5 px-4 py-2 rounded-full border border-white/5">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-          </span>
-          Live in Kathmandu & Global
-        </div>
+      {/* FOOTER */}
+      <div className="mt-16 text-center opacity-30 text-xs">
+        <p>Built on Zila Infrastructure</p>
+        <p>Kathmandu • Global</p>
+      </div>
 
-      </main>
-
-      {/* Subtle Footer (No more "Built by...") */}
-      <footer className="absolute bottom-6 text-xs text-gray-700">
-        © 2026 Zila Inc. • Privacy • Terms
-      </footer>
     </div>
   );
 }
