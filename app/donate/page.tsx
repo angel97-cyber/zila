@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function DonatePage() {
   return (
@@ -10,7 +11,7 @@ export default function DonatePage() {
           ZILA / WALLS
         </Link>
         <Link href="/" className="text-sm text-zinc-500 hover:text-white transition-colors">
-          ← Back to Home
+          ← Return to HQ
         </Link>
       </nav>
 
@@ -18,9 +19,16 @@ export default function DonatePage() {
       <main className="flex flex-col items-center justify-center p-6 md:p-12 max-w-3xl mx-auto text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
         
         {/* AVATAR / PROFILE */}
-        <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 p-[2px] mb-6 shadow-2xl shadow-blue-500/20">
-          <div className="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center text-3xl">
-            👷‍♂️
+        <div className="relative w-32 h-32 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 p-[3px] mb-6 shadow-2xl shadow-blue-500/20">
+          <div className="relative w-full h-full rounded-full overflow-hidden bg-zinc-900">
+            {/* THIS LOADS YOUR PHOTO NOW */}
+            <Image 
+              src="/me.jpg" 
+              alt="Angel Mainali" 
+              fill 
+              className="object-cover"
+              priority
+            />
           </div>
         </div>
 
@@ -30,21 +38,21 @@ export default function DonatePage() {
         </h1>
         
         <p className="text-xl text-zinc-300 font-medium mb-8">
-          Civil Engineer. Indie Hacker. Dreamer.
+          Civil Engineer. Tech Visionary. Dreamer.
         </p>
 
-        {/* THE STORY (The "Why") */}
+        {/* THE STORY (Emotional & Professional) */}
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 md:p-8 mb-12 text-left shadow-lg backdrop-blur-sm">
           <p className="text-zinc-400 leading-relaxed mb-4">
             I built <strong>WALLS</strong> because I believe the internet shouldn&apos;t be lonely. 
-            I wanted a place where anyone could leave a mark on any website.
+            I wanted a place where anyone could leave a mark on any website—a digital layer of human connection.
           </p>
           <p className="text-zinc-400 leading-relaxed mb-4">
-            Right now, I am a student in Nepal preparing for my <strong>Master&apos;s in Construction Management</strong> in Australia. 
-            The tuition is steep ($40k+), and I&apos;m working hard to bridge the gap between physical engineering and digital software.
+            Right now, I am a student in Nepal preparing for my <strong>Master&apos;s in Construction Management</strong>. 
+            The tuition is steep ($40k+), but my vision is clearer: to bridge the gap between physical engineering and digital intelligence.
           </p>
-          <p className="text-white font-medium">
-            Every dollar you donate buys me coffee while I code, helps pay for the servers, and gets me one step closer to Sydney.
+          <p className="text-white font-medium italic border-l-2 border-blue-500 pl-4">
+            &ldquo;Every dollar you donate helps keep the servers running and invests in a young engineer determined to put Nepal on the global tech map.&rdquo;
           </p>
         </div>
 
@@ -109,7 +117,7 @@ export default function DonatePage() {
 
         {/* THANK YOU NOTE */}
         <p className="mt-12 text-zinc-600 text-sm">
-          Built with ❤️ (and ☕) in Kathmandu.
+          Built with ❤️ in Kathmandu.
         </p>
 
       </main>
