@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Building, MapPin, Layers, Ruler, CheckCircle2, Lock, Download, ArrowRight } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
+import Image from "next/image";
 
 // Initialize Supabase Client directly here (Simplicity is King)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -234,9 +235,9 @@ export default function Home() {
                   <div className="animate-in fade-in slide-in-from-bottom-4">
                      <h3 className="text-lg font-bold mb-4">Pay via eSewa</h3>
                      <div className="bg-white text-slate-900 p-4 rounded-xl mb-4 text-center">
-                        <p className="font-bold">eSewa ID: 98XXXXXXXX</p>
-                        <p className="text-sm text-slate-500">Amount: रु. 199</p>
-                        {/* Placeholder for QR Code */}
+                        <p className="font-bold text-lg">eSewa ID: 9840185500</p>
+                        <p className="text-sm text-slate-500 mb-2">Amount: रु. 199</p>
+                        <Image src="/esewa.png" alt="eSewa QR" width={192} height={192} className="object-contain mx-auto rounded-lg border-2 border-slate-100" />
                         <div className="w-32 h-32 bg-slate-200 mx-auto mt-2 rounded flex items-center justify-center text-xs text-slate-400">QR Code Here</div>
                      </div>
                      <div className="space-y-3 mb-6">
@@ -252,7 +253,7 @@ export default function Home() {
               </div>
             ) : (
               /* THE UNLOCKED PREMIUM VIEW */
-              <div className="bg-white border-2 border-emerald-500 rounded-3xl p-8 shadow-xl animate-in fade-in zoom-in">
+              <div id="printable-report" className="bg-white border-2 border-emerald-500 rounded-3xl p-8 shadow-xl animate-in fade-in zoom-in">
                  <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                     <h3 className="text-xl font-black text-slate-900">Complete Material List</h3>
                     <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1"><CheckCircle2 className="h-3 w-3"/> Verified</span>
@@ -267,7 +268,7 @@ export default function Home() {
                     ))}
                  </div>
 
-                 <button className="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition-all flex justify-center items-center gap-2">
+                 <button onClick={() => window.print()} className="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 transition-all flex justify-center items-center gap-2 print:hidden">
                     <Download className="h-5 w-5"/> Download PDF Report
                  </button>
               </div>
