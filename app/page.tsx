@@ -336,7 +336,7 @@ export default function Home() {
           THE PREMIUM PDF REPORT (Visible only when unlocked)
           ========================================================= */}
       {isPremium && (
-        <div className="max-w-4xl mx-auto p-8 bg-white min-h-screen">
+        <div id="printable-report" className="max-w-4xl mx-auto p-8 bg-white min-h-screen text-slate-900">
           
           {/* Action Bar (Hidden in Print) */}
           <div className="print:hidden flex justify-between items-center mb-8 bg-emerald-50 p-4 rounded-xl border border-emerald-200">
@@ -350,7 +350,7 @@ export default function Home() {
           </div>
 
           {/* THE ACTUAL PRINTABLE DOCUMENT */}
-          <div className="space-y-8 text-slate-900">
+          <div className="space-y-8">
             
             {/* Header */}
             <div className="border-b-2 border-slate-900 pb-6 flex justify-between items-end">
@@ -380,8 +380,21 @@ export default function Home() {
               </div>
             </div>
 
+            {/* NEW: Phase-wise Cost Breakdown (Brought over from Free Tier) */}
+            <div>
+              <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><Layers className="h-5 w-5"/> Phase-wise Cost Breakdown</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                {Object.entries(BREAKDOWN).map(([category, pct]) => (
+                  <div key={category} className="flex justify-between items-center py-2 border-b border-slate-50">
+                    <span className="text-slate-700 text-sm">{category}</span>
+                    <span className="font-bold text-slate-900">रु. {Math.round(totalCost * pct).toLocaleString('en-IN')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Split Grid: Labor vs Material List */}
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-8 mt-8">
               
               {/* Left Column: Material Quantities */}
               <div>
@@ -389,7 +402,7 @@ export default function Home() {
                 <div className="space-y-3">
                   {Object.entries(MATERIALS_PER_SQFT).map(([material, multiplier]) => (
                     <div key={material} className="flex justify-between items-center py-2 border-b border-slate-100 border-dashed">
-                      <span className="text-slate-700">{material}</span>
+                      <span className="text-slate-700 text-sm">{material}</span>
                       <span className="font-bold text-slate-900">{Math.round(totalArea * multiplier).toLocaleString('en-IN')}</span>
                     </div>
                   ))}
@@ -403,7 +416,8 @@ export default function Home() {
                   <div className="space-y-3">
                     {Object.entries(LABOR_MATERIAL_RATIO).map(([cat, pct]) => (
                       <div key={cat} className="flex justify-between items-center">
-                        <span className="text-slate-700 text-sm">{cat} ({(pct*100)}%)</span>
+                        {/* FIXED: Removed the ugly decimals here */}
+                        <span className="text-slate-700 text-sm">{cat} ({Math.round(pct * 100)}%)</span>
                         <span className="font-bold text-slate-900">रु. {Math.round(totalCost * pct).toLocaleString('en-IN')}</span>
                       </div>
                     ))}
@@ -425,9 +439,9 @@ export default function Home() {
             </div>
 
             {/* Municipality Notes */}
-            <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 mt-8">
-              <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2"><ClipboardList className="h-5 w-5"/> Municipality Requirements (नक्सा पास)</h3>
-              <ul className="text-sm text-blue-800 space-y-2">
+            <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 mt-6 print:bg-transparent print:border-slate-300">
+              <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2 print:text-slate-900"><ClipboardList className="h-5 w-5"/> Municipality Requirements (नक्सा पास)</h3>
+              <ul className="text-sm text-blue-800 space-y-2 print:text-slate-700">
                 <li>• Ensure Land Ownership Document (Lalpurja) and Land Tax Receipt (Tiro) are updated.</li>
                 <li>• Hire a registered firm for Architectural and Structural drawings conforming to NBC 105:2020.</li>
                 <li>• Soil testing is highly recommended for structures above 2.5 stories.</li>
@@ -436,7 +450,7 @@ export default function Home() {
             </div>
 
             {/* Footer */}
-            <div className="text-center pt-8 border-t border-slate-200 text-xs text-slate-400">
+            <div className="text-center pt-6 border-t border-slate-200 text-xs text-slate-400 mt-8">
               <p>Disclaimer: This is a preliminary Bill of Quantities (BOQ) generated based on current market rates in Nepal.</p>
               <p>Actual costs may vary based on exact site conditions, contractor negotiations, and material brand selections.</p>
               <p className="mt-2 font-bold text-slate-500">Generated securely via zila.app</p>
