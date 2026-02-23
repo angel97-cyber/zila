@@ -2,45 +2,35 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4 text-center">
       
-      {/* BRANDING */}
-      <div className="text-center mb-12">
-        <h1 className="text-6xl font-black tracking-tighter mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400">
-          VERIFY
+      <div className="space-y-6 animate-in fade-in zoom-in duration-1000">
+        <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 drop-shadow-2xl">
+          ZILA
         </h1>
-        <p className="text-gray-400 uppercase tracking-[0.3em] text-xs">
-          The Trust Layer of Reality
+        <p className="text-xl text-gray-400 tracking-[0.5em] uppercase font-light">
+          Something is coming.
         </p>
+
+        <div className="flex gap-4 justify-center mt-12">
+          <Link 
+            href="/donate" 
+            className="px-8 py-3 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition-all"
+          >
+            Support the Build
+          </Link>
+          <a 
+            href="https://chromewebstore.google.com/detail/gioidkdmnmfgbehdcnmmccidhgpchhgk" 
+            target="_blank"
+            className="px-8 py-3 border border-white/20 rounded-full hover:bg-white/10 transition-all"
+          >
+            Get WALLS Extension
+          </a>
+        </div>
       </div>
 
-      {/* MAIN ACTIONS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-lg">
-        
-        {/* OPTION 1: REQUEST */}
-        <Link href="/request" className="group relative block p-8 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-blue-500 transition-all duration-300">
-          <div className="absolute top-4 right-4 text-2xl group-hover:scale-110 transition-transform">📍</div>
-          <h2 className="text-2xl font-bold mb-2 text-white">Request</h2>
-          <p className="text-sm text-gray-500">
-            Need eyes somewhere? Drop a pin and offer a bounty.
-          </p>
-        </Link>
-
-        {/* OPTION 2: SCOUT */}
-        <Link href="/scout" className="group relative block p-8 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-green-500 transition-all duration-300">
-          <div className="absolute top-4 right-4 text-2xl group-hover:scale-110 transition-transform">📸</div>
-          <h2 className="text-2xl font-bold mb-2 text-white">Scout</h2>
-          <p className="text-sm text-gray-500">
-            Earn money by verifying locations near you.
-          </p>
-        </Link>
-
-      </div>
-
-      {/* FOOTER */}
-      <div className="mt-16 text-center opacity-30 text-xs">
-        <p>Built on Zila Infrastructure</p>
-        <p>Kathmandu • Global</p>
+      <div className="absolute bottom-8 text-gray-600 text-xs">
+        <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
       </div>
 
     </div>

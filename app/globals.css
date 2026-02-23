@@ -3,9 +3,6 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -26,19 +23,16 @@ body {
 }
 /* --- LEAFLET FIXES --- */
 
-/* 1. Stop Tailwind from shrinking map tiles */
+/* LEAFLET FIXES */
 .leaflet-container img {
   max-width: none !important;
   width: auto !important;
 }
-
-/* 2. Fix the missing marker icons just in case */
-.leaflet-default-icon-path {
-  background-image: url(https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png);
-}
-
-/* 3. Make sure the map layer stays behind your menus */
 .leaflet-container {
+  background: #000;
   z-index: 0;
-  background: #000; /* Makes the loading background black to match theme */
+}
+/* Hide the leaflet attribution if you want a cleaner look (optional) */
+.leaflet-control-attribution {
+  display: none; 
 }
