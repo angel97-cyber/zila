@@ -3,6 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Building, MapPin, Layers, Ruler, CheckCircle2, Lock, Download, ArrowRight } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase Client directly here (Simplicity is King)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // --- YOUR ENGINEERING BRAIN (RESEARCHED & FIELD-TESTED FOR NEPAL 2024/2025) ---
 
@@ -64,10 +70,27 @@ export default function Home() {
   const handleUnlock = async () => {
     if (!paymentRef || !phone) return alert("Please enter eSewa Ref and Phone Number.");
     
-    // In background, you would send this to Supabase here using fetch/supabase-js
-    // For now, we instantly unlock to give the user the dopamine hit.
+    // 1. Instantly unlock the UI for the user (Speed & Trust)
     setIsPremium(true);
     setShowPayment(false);
+
+    // 2. Secretly save the payment details and house data to your database
+    try {
+      await supabase.from('estimates').insert([{
+        country: country,
+        district: district,
+        floors: floors,
+        area_per_floor: area,
+        quality: quality,
+        total_cost: totalCost,
+        payment_ref: paymentRef,
+        phone_number: phone,
+        premium: true
+      }]);
+    } catch (error) {
+      console.error("DB Error:", error);
+      // We don't alert the user if DB fails, they already paid. We just log it.
+    }
   };
 
   return (
