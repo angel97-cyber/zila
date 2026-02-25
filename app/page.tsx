@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Building, MapPin, Layers, Ruler, CheckCircle2, Lock, Download, Clock, ClipboardList, HardHat } from "lucide-react";
+import { Building, MapPin, Layers, Ruler, CheckCircle2, Lock, Download, Clock, ClipboardList, HardHat, ShieldAlert, ArrowRight } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
 // --- SUPABASE CLIENT ---
@@ -11,16 +11,16 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// --- YOUR ENGINEERING BRAIN (RESEARCHED FOR NEPAL 2025) ---
+// --- ENGINEERING BRAIN (NEPAL 2082/2083 - 2026 INFLATION ADJUSTED) ---
 const RATES: Record<string, Record<string, Record<string, number>>> = {
   nepal: {
-    kathmandu: { basic: 3200, standard: 4500, premium: 6500, luxury: 8500 },
-    lalitpur:  { basic: 3100, standard: 4400, premium: 6400, luxury: 8300 },
-    bhaktapur: { basic: 3000, standard: 4300, premium: 6300, luxury: 8200 },
-    pokhara:   { basic: 3000, standard: 4200, premium: 6200, luxury: 8000 },
-    chitwan:   { basic: 2800, standard: 4000, premium: 5800, luxury: 7500 },
-    butwal:    { basic: 2700, standard: 3900, premium: 5600, luxury: 7300 },
-    biratnagar:{ basic: 2700, standard: 3900, premium: 5600, luxury: 7300 },
+    kathmandu: { basic: 3500, standard: 4800, premium: 6800, luxury: 9000 },
+    lalitpur:  { basic: 3400, standard: 4700, premium: 6700, luxury: 8800 },
+    bhaktapur: { basic: 3300, standard: 4600, premium: 6600, luxury: 8700 },
+    pokhara:   { basic: 3400, standard: 4600, premium: 6500, luxury: 8500 },
+    chitwan:   { basic: 3000, standard: 4200, premium: 5800, luxury: 7800 },
+    butwal:    { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 },
+    biratnagar:{ basic: 2900, standard: 4100, premium: 5700, luxury: 7600 },
   },
 };
 
@@ -45,7 +45,6 @@ const MATERIALS_PER_SQFT = {
   "Tiles / Granite (sq.ft)": 1.30,
 };
 
-// --- NEW VALUE ADDS FOR THE PREMIUM PDF ---
 const LABOR_MATERIAL_RATIO = {
   "Material Cost (Cement, Steel, Bricks, etc.)": 0.65,
   "Labor & Equipment Cost": 0.28,
@@ -69,84 +68,105 @@ export default function Home() {
   const [area, setArea] = useState(1000);
   const [quality, setQuality] = useState("standard");
   
-  const [isPremium, setIsPremium] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
-  const [paymentRef, setPaymentRef] = useState("");
+  // Checkout States
+  const [checkoutStep, setCheckoutStep] = useState(0); // 0: Pitch, 1: Contact Form, 2: QR Code
+  const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
+  const [paymentRef, setPaymentRef] = useState("");
   
-  // NEW: Security States
+  // Security & Verification States
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const [estimateId, setEstimateId] = useState<string | null>(null);
+  const [verificationTime, setVerificationTime] = useState(0);
 
   // --- CALCULATION LOGIC ---
   const totalArea = floors * area;
   const ratePerSqft = RATES[country][district][quality];
   const totalCost = totalArea * ratePerSqft;
 
-  // --- SUBMIT PAYMENT LOGIC ---
-  const handleUnlock = async () => {
-    if (!paymentRef || !phone) return alert("Please enter eSewa Ref and Phone Number.");
-    
-    // 1. Show verifying screen
-    setIsVerifying(true);
-    setShowPayment(false);
+  // --- LOCAL STORAGE (SAVE STATE) ---
+  useEffect(() => {
+    // When page loads, check if they already bought a report recently
+    const savedId = localStorage.getItem('zila_estimate_id');
+    if (savedId) {
+      checkExistingReport(savedId);
+    }
+  }, []);
 
-    // 2. Insert into DB with premium = FALSE
+  const checkExistingReport = async (id: string) => {
+    const { data } = await supabase.from('estimates').select('*').eq('id', id).single();
+    if (data) {
+      setEstimateId(data.id);
+      setDistrict(data.district);
+      setFloors(data.floors);
+      setArea(data.area_per_floor);
+      setQuality(data.quality);
+      
+      if (data.premium) {
+        setIsPremium(true);
+        setStep(3);
+      } else if (data.payment_ref) {
+        setStep(3);
+        setIsVerifying(true);
+      }
+    }
+  };
+
+  // --- CHECKOUT FLOW ---
+  // STEP 1: Save Contact Info First (The Ghost Payer Fix)
+  const handleContactSubmit = async () => {
+    if (!customerName || !phone) return alert("Please enter your name and phone number.");
+    
     try {
       const { data } = await supabase.from('estimates').insert([{
-        country: country,
-        district: district,
-        floors: floors,
-        area_per_floor: area,
-        quality: quality,
-        total_cost: totalCost,
-        payment_ref: paymentRef,
-        phone_number: phone,
-        premium: false // Default to false so they can't cheat
-      }]).select(); // Select returns the inserted row
+        country, district, floors, area_per_floor: area, quality, total_cost: totalCost,
+        phone_number: phone, name: customerName, premium: false 
+      }]).select();
 
       if (data && data.length > 0) {
-        setEstimateId(data[0].id); // Save the ID so we can poll it
+        setEstimateId(data[0].id);
+        localStorage.setItem('zila_estimate_id', data[0].id); // Save to browser
+        setCheckoutStep(2); // Move to QR Code
       }
     } catch (error) {
       console.error("DB Error:", error);
     }
   };
 
-  // --- THE LIVE POLLING SYSTEM ---
-  // This constantly checks Supabase to see if YOU checked the box.
+  // STEP 2: Submit Payment Ref
+  const handlePaymentSubmit = async () => {
+    if (!paymentRef) return alert("Please enter the eSewa Transaction ID.");
+    if (!estimateId) return;
+
+    setIsVerifying(true);
+    setCheckoutStep(0);
+    
+    await supabase.from('estimates').update({ payment_ref: paymentRef }).eq('id', estimateId);
+  };
+
+  // --- LIVE POLLING SYSTEM ---
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
     if (isVerifying && estimateId) {
       interval = setInterval(async () => {
-        const { data } = await supabase
-          .from('estimates')
-          .select('premium')
-          .eq('id', estimateId)
-          .single();
-          
+        setVerificationTime(prev => prev + 3); // Track how long they've been waiting
+        
+        const { data } = await supabase.from('estimates').select('premium').eq('id', estimateId).single();
         if (data && data.premium === true) {
           setIsPremium(true);
-          setIsVerifying(false); // Stop verifying, show the PDF
+          setIsVerifying(false);
           clearInterval(interval);
         }
-      }, 3000); // Checks every 3 seconds
+      }, 3000);
     }
-    
     return () => clearInterval(interval);
   }, [isVerifying, estimateId]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-emerald-200">
       
-      {/* 
-        This wrapper has 'print:hidden'. 
-        When they hit download PDF, everything inside this block vanishes, 
-        leaving ONLY the beautiful report at the bottom.
-      */}
       <div className="print:hidden">
-        
         {/* HEADER */}
         <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
           <div className="flex items-center gap-2">
@@ -165,7 +185,7 @@ export default function Home() {
           {step === 1 && (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <h1 className="text-3xl font-bold text-slate-900 mb-2">Build cost, calculated instantly.</h1>
-              <p className="text-slate-500 mb-8">३० सेकेन्डमा घर बनाउन कति खर्च लाग्छ थाहा पाउनुहोस्।</p>
+              <p className="text-slate-500 mb-8">३० सेकेन्डमा घर बनाउन कति खर्च लाग्छ थाहा पाउनुहोस्। (Updated for 2082/83)</p>
               
               <div className="space-y-6">
                 <div>
@@ -174,17 +194,13 @@ export default function Home() {
                     <option value="nepal">Nepal 🇳🇵</option>
                   </select>
                 </div>
-                
                 <div>
                   <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2"><Building className="h-4 w-4"/> District / City</label>
                   <select value={district} onChange={(e) => setDistrict(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900 outline-none capitalize">
                     {Object.keys(RATES.nepal).map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
-
-                <button onClick={() => setStep(2)} className="w-full bg-blue-900 text-white font-bold py-4 rounded-xl hover:bg-blue-800 transition-all mt-4">
-                  Next Step
-                </button>
+                <button onClick={() => setStep(2)} className="w-full bg-blue-900 text-white font-bold py-4 rounded-xl hover:bg-blue-800 transition-all mt-4">Next Step</button>
               </div>
             </div>
           )}
@@ -194,25 +210,20 @@ export default function Home() {
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 animate-in fade-in slide-in-from-right-8 duration-500">
               <button onClick={() => setStep(1)} className="text-sm text-slate-400 mb-6 hover:text-slate-600">← Back</button>
               <h2 className="text-2xl font-bold text-slate-900 mb-8">Building Details</h2>
-              
               <div className="space-y-8">
                 <div>
                   <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-4"><Layers className="h-4 w-4"/> Number of Floors</label>
                   <div className="flex gap-2">
                     {[1, 1.5, 2, 2.5, 3].map(f => (
-                      <button key={f} onClick={() => setFloors(f)} className={`flex-1 py-3 rounded-lg font-semibold border transition-all ${floors === f ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-900'}`}>
-                        {f}
-                      </button>
+                      <button key={f} onClick={() => setFloors(f)} className={`flex-1 py-3 rounded-lg font-semibold border transition-all ${floors === f ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-900'}`}>{f}</button>
                     ))}
                   </div>
                 </div>
-
                 <div>
                   <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2"><Ruler className="h-4 w-4"/> Built-up Area Per Floor (sq ft)</label>
                   <input type="number" value={area} onChange={(e) => setArea(Number(e.target.value))} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-lg font-medium outline-none focus:ring-2 focus:ring-blue-900" />
                   <p className="text-sm text-emerald-600 font-medium mt-2">Total Area: {(floors * area).toLocaleString()} sq ft</p>
                 </div>
-
                 <div>
                   <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-4"><CheckCircle2 className="h-4 w-4"/> Finish Quality</label>
                   <div className="grid grid-cols-2 gap-3">
@@ -224,26 +235,21 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-
-                <button onClick={() => setStep(3)} className="w-full bg-emerald-600 text-white font-bold text-lg py-5 rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">
-                  Calculate Cost 🔍
-                </button>
+                <button onClick={() => setStep(3)} className="w-full bg-emerald-600 text-white font-bold text-lg py-5 rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">Calculate Cost 🔍</button>
               </div>
             </div>
           )}
 
-          {/* STEP 3: RESULTS (FREE & PAYMENT UI) */}
+          {/* STEP 3: RESULTS (FREE & SECURE CHECKOUT) */}
           {step === 3 && !isPremium && (
             <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
-              <button onClick={() => setStep(2)} className="text-sm text-slate-400 hover:text-slate-600">← Edit Details</button>
+              {!isVerifying && <button onClick={() => setStep(2)} className="text-sm text-slate-400 hover:text-slate-600">← Edit Details</button>}
               
               {/* THE BIG NUMBER */}
               <div className="bg-white p-8 rounded-3xl shadow-sm border border-emerald-100 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-5"><Building className="h-32 w-32"/></div>
                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Estimated Total Cost</h3>
-                <div className="text-5xl font-black text-emerald-700 mb-2">
-                  रु. {totalCost.toLocaleString('en-IN')}
-                </div>
+                <div className="text-5xl font-black text-emerald-700 mb-2">रु. {totalCost.toLocaleString('en-IN')}</div>
                 <p className="text-slate-500 font-medium pb-6 border-b border-slate-100">
                   📍 <span className="capitalize">{district}</span> • {floors} Floors • {(floors * area).toLocaleString()} sqft • <span className="capitalize">{quality}</span>
                 </p>
@@ -265,55 +271,78 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* SECURITY / PAYMENT SECTION */}
+              {/* CHECKOUT SYSTEM */}
               <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
                 
-                {/* STATE 1: SELLING THE VALUE */}
-                {!showPayment && !isVerifying && (
+                {/* PITCH */}
+                {checkoutStep === 0 && !isVerifying && (
                   <>
                     <h3 className="text-xl font-bold flex items-center gap-2 mb-4"><Lock className="h-5 w-5 text-emerald-400"/> Get the Official BOQ Report</h3>
                     <ul className="space-y-3 mb-8 text-slate-300 text-sm">
                       <li className="flex items-center gap-2">✓ Exact Material Quantities (Cement, Steel, Bricks)</li>
                       <li className="flex items-center gap-2">✓ Labor vs. Material Cost Distribution</li>
-                      <li className="flex items-center gap-2">✓ Construction Timeline & Municipality Checklist</li>
+                      <li className="flex items-center gap-2 text-emerald-400">✓ NEW: Structural & Seismic Guidelines (NBC 105:2020)</li>
                       <li className="flex items-center gap-2">✓ Downloadable PDF for Banks & Contractors</li>
                     </ul>
-                    <p className="text-xs text-slate-400 mb-4 border-t border-slate-800 pt-4">An engineer charges Rs. 10,000+ for this. You pay Rs. 199.</p>
-                    <button onClick={() => setShowPayment(true)} className="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl hover:bg-emerald-400 transition-all text-lg shadow-lg shadow-emerald-500/30">
+                    <button onClick={() => setCheckoutStep(1)} className="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl hover:bg-emerald-400 transition-all text-lg shadow-lg shadow-emerald-500/30">
                       Unlock Official Report — रु. 199
                     </button>
                   </>
                 )}
 
-                {/* STATE 2: THE ESEWA QR */}
-                {showPayment && !isVerifying && (
-                  <div className="animate-in fade-in slide-in-from-bottom-4">
-                     <h3 className="text-lg font-bold mb-4">Pay via eSewa</h3>
+                {/* PRE-CAPTURE CONTACT FORM */}
+                {checkoutStep === 1 && !isVerifying && (
+                  <div className="animate-in fade-in slide-in-from-right-4">
+                    <h3 className="text-lg font-bold mb-2">Where should we send this?</h3>
+                    <p className="text-sm text-slate-400 mb-6">Enter your details to secure your report before payment.</p>
+                    <div className="space-y-4 mb-6">
+                      <input type="text" placeholder="Your Full Name" value={customerName} onChange={e => setCustomerName(e.target.value)} className="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:border-emerald-500 text-white" />
+                      <input type="tel" placeholder="Your Phone Number" value={phone} onChange={e => setPhone(e.target.value)} className="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:border-emerald-500 text-white" />
+                    </div>
+                    <button onClick={handleContactSubmit} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-500 transition-all flex justify-center items-center gap-2">
+                      Proceed to Payment <ArrowRight className="h-5 w-5"/>
+                    </button>
+                    <button onClick={() => setCheckoutStep(0)} className="w-full text-center text-sm text-slate-400 mt-4 hover:text-white">Cancel</button>
+                  </div>
+                )}
+
+                {/* QR CODE & TX ID */}
+                {checkoutStep === 2 && !isVerifying && (
+                  <div className="animate-in fade-in slide-in-from-right-4">
+                     <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
+                       <span>Pay via eSewa</span>
+                       <span className="text-xs bg-slate-800 px-2 py-1 rounded text-slate-400">ID: #{estimateId?.split('-')[0]}</span>
+                     </h3>
                      <div className="bg-white text-slate-900 p-4 rounded-xl mb-6 text-center">
                         <p className="font-bold text-lg">eSewa ID: 9840185500</p>
                         <p className="text-sm text-slate-500 mb-2">Amount: रु. 199</p>
                         <Image src="/esewa.png" alt="eSewa QR" width={192} height={192} className="object-contain mx-auto rounded-lg border-2 border-slate-100" />
                      </div>
                      <div className="space-y-3 mb-6">
-                        <input type="text" placeholder="eSewa Transaction ID (e.g. 0B2V...)" value={paymentRef} onChange={e => setPaymentRef(e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg outline-none focus:border-emerald-500 text-white" />
-                        <input type="text" placeholder="Your Phone Number" value={phone} onChange={e => setPhone(e.target.value)} className="w-full p-3 bg-slate-800 border border-slate-700 rounded-lg outline-none focus:border-emerald-500 text-white" />
+                        <label className="text-sm text-slate-300">Enter your eSewa Transaction ID below:</label>
+                        <input type="text" placeholder="e.g. 0B2V..." value={paymentRef} onChange={e => setPaymentRef(e.target.value)} className="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:border-emerald-500 text-white font-mono" />
                      </div>
-                     <button onClick={handleUnlock} className="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl hover:bg-emerald-400 transition-all">
+                     <button onClick={handlePaymentSubmit} className="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl hover:bg-emerald-400 transition-all">
                       I Have Paid — Unlock Now
                     </button>
-                    <button onClick={() => setShowPayment(false)} className="w-full text-center text-sm text-slate-400 mt-4 hover:text-white">Cancel</button>
                   </div>
                 )}
 
-                {/* STATE 3: VERIFYING (THE WIZARD OF OZ) */}
+                {/* VERIFYING (SLEEP-PROOF) */}
                 {isVerifying && (
                   <div className="text-center py-8 animate-in fade-in zoom-in duration-500">
                     <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
                     <h3 className="text-xl font-bold mb-2">Verifying Payment...</h3>
-                    <p className="text-sm text-slate-400 mb-4">We have received your request. Our engineer is manually verifying the transaction.</p>
-                    <div className="bg-slate-800 rounded-lg p-4 text-xs text-slate-300">
-                      Please do not close this window. It will automatically unlock within 1-2 minutes once approved.
-                    </div>
+                    
+                    {verificationTime < 15 ? (
+                      <p className="text-sm text-slate-400 mb-4">Our engineer is manually verifying the transaction.</p>
+                    ) : (
+                      <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 text-sm text-slate-300 animate-in fade-in">
+                        <p className="font-bold text-emerald-400 mb-2">Taking longer than usual?</p>
+                        <p className="mb-2">Our engineer might be asleep or away from the desk. <strong>Your payment is securely logged.</strong></p>
+                        <p className="text-xs text-slate-400">You can safely bookmark or close this tab. Your browser will remember you, and it will automatically unlock when verified.</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -333,12 +362,11 @@ export default function Home() {
       </div>
 
       {/* =========================================================
-          THE PREMIUM PDF REPORT (Visible only when unlocked)
+          THE PREMIUM PDF REPORT
           ========================================================= */}
       {isPremium && (
         <div id="printable-report" className="max-w-4xl mx-auto p-8 bg-white min-h-screen text-slate-900">
           
-          {/* Action Bar (Hidden in Print) */}
           <div className="print:hidden flex justify-between items-center mb-8 bg-emerald-50 p-4 rounded-xl border border-emerald-200">
             <div>
               <h2 className="text-emerald-800 font-bold text-lg">✅ Payment Verified!</h2>
@@ -349,10 +377,7 @@ export default function Home() {
             </button>
           </div>
 
-          {/* THE ACTUAL PRINTABLE DOCUMENT */}
           <div className="space-y-8">
-            
-            {/* Header */}
             <div className="border-b-2 border-slate-900 pb-6 flex justify-between items-end">
               <div>
                 <h1 className="text-4xl font-black text-slate-900 tracking-tight">ZILA</h1>
@@ -365,7 +390,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Project Summary */}
             <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><MapPin className="h-5 w-5"/> Project Details</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -380,7 +404,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* NEW: Phase-wise Cost Breakdown (Brought over from Free Tier) */}
             <div>
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><Layers className="h-5 w-5"/> Phase-wise Cost Breakdown</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
@@ -393,10 +416,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Split Grid: Labor vs Material List */}
             <div className="grid md:grid-cols-2 gap-8 mt-8">
-              
-              {/* Left Column: Material Quantities */}
               <div>
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><HardHat className="h-5 w-5"/> Required Materials</h3>
                 <div className="space-y-3">
@@ -409,14 +429,12 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right Column: Labor Split & Timeline */}
               <div className="space-y-8">
                 <div>
                   <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><Building className="h-5 w-5"/> Cost Distribution</h3>
                   <div className="space-y-3">
                     {Object.entries(LABOR_MATERIAL_RATIO).map(([cat, pct]) => (
                       <div key={cat} className="flex justify-between items-center">
-                        {/* FIXED: Removed the ugly decimals here */}
                         <span className="text-slate-700 text-sm">{cat} ({Math.round(pct * 100)}%)</span>
                         <span className="font-bold text-slate-900">रु. {Math.round(totalCost * pct).toLocaleString('en-IN')}</span>
                       </div>
@@ -438,18 +456,26 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Municipality Notes */}
+            {/* NEW ENGINEERING VALUE ADD */}
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mt-6 print:bg-transparent print:border-slate-300">
+              <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2"><ShieldAlert className="h-5 w-5"/> Structural Safety & Guidelines (NBC 105:2020)</h3>
+              <ul className="text-sm text-slate-700 space-y-2">
+                <li>• <strong>Minimum Column Size:</strong> Must not be less than 12&quot; x 12&quot; (300mm x 300mm) for residential buildings.</li>
+                <li>• <strong>Rebar Configuration:</strong> Minimum of 4-16mm Ø and 4-12mm Ø longitudinal bars for primary columns. Fe500 grade steel highly recommended.</li>
+                <li>• <strong>Foundation Depth:</strong> Minimum 5 feet depth for isolated footings in normal soil conditions. Must conduct soil test for Black Cotton Soil.</li>
+                <li>• <strong>Cement Mix:</strong> Use M20 grade concrete (1:1.5:3 ratio) minimum for all structural RCC members.</li>
+              </ul>
+            </div>
+
             <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 mt-6 print:bg-transparent print:border-slate-300">
               <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2 print:text-slate-900"><ClipboardList className="h-5 w-5"/> Municipality Requirements (नक्सा पास)</h3>
               <ul className="text-sm text-blue-800 space-y-2 print:text-slate-700">
                 <li>• Ensure Land Ownership Document (Lalpurja) and Land Tax Receipt (Tiro) are updated.</li>
                 <li>• Hire a registered firm for Architectural and Structural drawings conforming to NBC 105:2020.</li>
-                <li>• Soil testing is highly recommended for structures above 2.5 stories.</li>
                 <li>• Above estimates do not include furniture, compound walls, or municipality approval fees.</li>
               </ul>
             </div>
 
-            {/* Footer */}
             <div className="text-center pt-6 border-t border-slate-200 text-xs text-slate-400 mt-8">
               <p>Disclaimer: This is a preliminary Bill of Quantities (BOQ) generated based on current market rates in Nepal.</p>
               <p>Actual costs may vary based on exact site conditions, contractor negotiations, and material brand selections.</p>
