@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Building, MapPin, Layers, Ruler, CheckCircle2, Lock, Download, Clock, ClipboardList, HardHat, ShieldAlert, ArrowRight } from "lucide-react";
+import { Building, MapPin, Layers, Ruler, CheckCircle2, Lock, Download, Clock, ClipboardList, HardHat, ShieldAlert, ArrowRight, Home as HomeIcon } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
 // --- SUPABASE CLIENT ---
@@ -11,7 +11,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// --- ENGINEERING BRAIN (NEPAL 2082/2083 - 2026 INFLATION ADJUSTED) ---
+// --- ENGINEERING BRAIN (NEPAL 2082/2083 - NBC 105:2025 COMPLIANT) ---
 const RATES: Record<string, Record<string, Record<string, number>>> = {
   nepal: {
     kathmandu: { basic: 3500, standard: 4800, premium: 6800, luxury: 9000 },
@@ -22,6 +22,14 @@ const RATES: Record<string, Record<string, Record<string, number>>> = {
     butwal:    { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 },
     biratnagar:{ basic: 2900, standard: 4100, premium: 5700, luxury: 7600 },
   },
+};
+
+// Rich Descriptions for Clients (The "Engineering Pitch")
+const QUALITY_INFO: Record<string, { title: string; desc: string; emoji: string }> = {
+  basic: { title: "Basic (सामान्य)", desc: "Normal bricks, budget tiles, standard distemper paint. Standard wiring.", emoji: "🧱" },
+  standard: { title: "Standard (मध्यम)", desc: "Good quality bricks, standard tiles, emulsion paint, modular kitchen prep.", emoji: "🏠" },
+  premium: { title: "Premium (उत्तम)", desc: "Premium paint, false ceiling, granite counters, modern modular kitchen.", emoji: "✨" },
+  luxury: { title: "Luxury (विलासी)", desc: "Italian marble, central AC prep, smart home features, premium wood.", emoji: "💎" },
 };
 
 const BREAKDOWN = {
@@ -46,7 +54,7 @@ const MATERIALS_PER_SQFT = {
 };
 
 const LABOR_MATERIAL_RATIO = {
-  "Material Cost (Cement, Steel, Bricks, etc.)": 0.65,
+  "Material Cost (Cement, Steel, etc.)": 0.65,
   "Labor & Equipment Cost": 0.28,
   "Contractor Profit & Overhead": 0.07,
 };
@@ -64,24 +72,28 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const [country, setCountry] = useState("nepal");
   const [district, setDistrict] = useState("kathmandu");
-  const [floors, setFloors] = useState(2);
-  const [area, setArea] = useState(1000);
+  
+  // Changed floors to accept any number input
+  const [floors, setFloors] = useState<number | string>(2);
+  const [area, setArea] = useState<number | string>(1000);
   const [quality, setQuality] = useState("standard");
   
   // Checkout States
-  const [checkoutStep, setCheckoutStep] = useState(0); // 0: Pitch, 1: Contact Form, 2: QR Code
+  const [checkoutStep, setCheckoutStep] = useState(0); 
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [paymentRef, setPaymentRef] = useState("");
   
-  // Security & Verification States
+  // Security States
   const [isVerifying, setIsVerifying] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [estimateId, setEstimateId] = useState<string | null>(null);
   const [verificationTime, setVerificationTime] = useState(0);
 
   // --- CALCULATION LOGIC ---
-  const totalArea = floors * area;
+  const safeFloors = Number(floors) || 0;
+  const safeArea = Number(area) || 0;
+  const totalArea = safeFloors * safeArea;
   const ratePerSqft = RATES[country][district][quality];
   const totalCost = totalArea * ratePerSqft;
 
@@ -108,32 +120,35 @@ export default function Home() {
         }
       }
     };
-
     checkSavedReport();
   }, []);
 
   // --- CHECKOUT FLOW ---
-  // STEP 1: Save Contact Info First (The Ghost Payer Fix)
   const handleContactSubmit = async () => {
     if (!customerName || !phone) return alert("Please enter your name and phone number.");
     
     try {
-      const { data } = await supabase.from('estimates').insert([{
-        country, district, floors, area_per_floor: area, quality, total_cost: totalCost,
+      // NOTE: name column must exist in supabase now!
+      const { data, error } = await supabase.from('estimates').insert([{
+        country, district, floors: safeFloors, area_per_floor: safeArea, quality, total_cost: totalCost,
         phone_number: phone, name: customerName, premium: false 
       }]).select();
 
+      if (error) {
+        alert("System Error: " + error.message);
+        return;
+      }
+
       if (data && data.length > 0) {
         setEstimateId(data[0].id);
-        localStorage.setItem('zila_estimate_id', data[0].id); // Save to browser
-        setCheckoutStep(2); // Move to QR Code
+        localStorage.setItem('zila_estimate_id', data[0].id);
+        setCheckoutStep(2); 
       }
     } catch (error) {
       console.error("DB Error:", error);
     }
   };
 
-  // STEP 2: Submit Payment Ref
   const handlePaymentSubmit = async () => {
     if (!paymentRef) return alert("Please enter the eSewa Transaction ID.");
     if (!estimateId) return;
@@ -149,7 +164,7 @@ export default function Home() {
     let interval: NodeJS.Timeout;
     if (isVerifying && estimateId) {
       interval = setInterval(async () => {
-        setVerificationTime(prev => prev + 3); // Track how long they've been waiting
+        setVerificationTime(prev => prev + 3);
         
         const { data } = await supabase.from('estimates').select('premium').eq('id', estimateId).single();
         if (data && data.premium === true) {
@@ -184,7 +199,7 @@ export default function Home() {
           {step === 1 && (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <h1 className="text-3xl font-bold text-slate-900 mb-2">Build cost, calculated instantly.</h1>
-              <p className="text-slate-500 mb-8">३० सेकेन्डमा घर बनाउन कति खर्च लाग्छ थाहा पाउनुहोस्। (Updated for 2082/83)</p>
+              <p className="text-slate-500 mb-8">३० सेकेन्डमा घर बनाउन कति खर्च लाग्छ थाहा पाउनुहोस्।</p>
               
               <div className="space-y-6">
                 <div>
@@ -194,7 +209,7 @@ export default function Home() {
                   </select>
                 </div>
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2"><Building className="h-4 w-4"/> District / City</label>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2"><Building className="h-4 w-4"/> District / City (जिल्ला)</label>
                   <select value={district} onChange={(e) => setDistrict(e.target.value)} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900 outline-none capitalize">
                     {Object.keys(RATES.nepal).map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
@@ -204,56 +219,91 @@ export default function Home() {
             </div>
           )}
 
-          {/* STEP 2: DETAILS */}
+          {/* STEP 2: DETAILS (MASSIVELY UPGRADED) */}
           {step === 2 && (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 animate-in fade-in slide-in-from-right-8 duration-500">
               <button onClick={() => setStep(1)} className="text-sm text-slate-400 mb-6 hover:text-slate-600">← Back</button>
-              <h2 className="text-2xl font-bold text-slate-900 mb-8">Building Details</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-8">Building Details (घरको विवरण)</h2>
+              
               <div className="space-y-8">
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-4"><Layers className="h-4 w-4"/> Number of Floors</label>
-                  <div className="flex gap-2">
-                    {[1, 1.5, 2, 2.5, 3].map(f => (
-                      <button key={f} onClick={() => setFloors(f)} className={`flex-1 py-3 rounded-lg font-semibold border transition-all ${floors === f ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-900'}`}>{f}</button>
-                    ))}
+                
+                {/* DYNAMIC FLOORS INPUT */}
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="flex-1">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+                      <Layers className="h-4 w-4"/> Total Floors <span className="text-slate-400 font-normal">(तल्लाको संख्या)</span>
+                    </label>
+                    <input 
+                      type="number" step="0.5" min="1" max="10" 
+                      value={floors} onChange={(e) => setFloors(e.target.value)} 
+                      placeholder="e.g. 2.5"
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-lg font-medium outline-none focus:ring-2 focus:ring-blue-900" 
+                    />
+                  </div>
+
+                  <div className="flex-1">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+                      <Ruler className="h-4 w-4"/> Area Per Floor <span className="text-slate-400 font-normal">(तल्लाको क्षेत्रफल)</span>
+                    </label>
+                    <input 
+                      type="number" value={area} onChange={(e) => setArea(e.target.value)} 
+                      placeholder="e.g. 1000"
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-lg font-medium outline-none focus:ring-2 focus:ring-blue-900" 
+                    />
                   </div>
                 </div>
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2"><Ruler className="h-4 w-4"/> Built-up Area Per Floor (sq ft)</label>
-                  <input type="number" value={area} onChange={(e) => setArea(Number(e.target.value))} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-lg font-medium outline-none focus:ring-2 focus:ring-blue-900" />
-                  <p className="text-sm text-emerald-600 font-medium mt-2">Total Area: {(floors * area).toLocaleString()} sq ft</p>
+                
+                <div className="bg-emerald-50 text-emerald-800 p-3 rounded-lg text-sm font-semibold text-center border border-emerald-100">
+                  Total Built-up Area: {totalArea.toLocaleString()} sq ft
                 </div>
+
+                {/* RICH QUALITY CARDS */}
                 <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-4"><CheckCircle2 className="h-4 w-4"/> Finish Quality</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {Object.keys(RATES.nepal.kathmandu).map(q => (
-                      <button key={q} onClick={() => setQuality(q)} className={`p-4 rounded-xl border text-left transition-all ${quality === q ? 'border-blue-900 bg-blue-50 ring-1 ring-blue-900' : 'border-slate-200 bg-white hover:border-blue-300'}`}>
-                        <div className="font-bold capitalize text-slate-900">{q}</div>
-                        <div className="text-sm text-slate-500">Rs. {RATES.nepal.kathmandu[q]}/sqft</div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-4">
+                    <CheckCircle2 className="h-4 w-4"/> Finish Quality <span className="text-slate-400 font-normal">(फिनिसिङ कस्तो गर्ने?)</span>
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.keys(QUALITY_INFO).map(q => (
+                      <button 
+                        key={q} 
+                        onClick={() => setQuality(q)} 
+                        className={`p-4 rounded-xl border text-left transition-all relative overflow-hidden ${quality === q ? 'border-blue-900 bg-blue-50 ring-1 ring-blue-900 shadow-md' : 'border-slate-200 bg-white hover:border-blue-300'}`}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="font-bold text-slate-900 flex items-center gap-2">
+                            <span className="text-xl">{QUALITY_INFO[q].emoji}</span> 
+                            {QUALITY_INFO[q].title}
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-500 leading-relaxed mb-3 h-10">{QUALITY_INFO[q].desc}</p>
+                        <div className="text-sm font-bold text-emerald-600 bg-emerald-100/50 inline-block px-2 py-1 rounded">
+                          Rs. {RATES.nepal.kathmandu[q]}/sqft
+                        </div>
                       </button>
                     ))}
                   </div>
                 </div>
-                <button onClick={() => setStep(3)} className="w-full bg-emerald-600 text-white font-bold text-lg py-5 rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">Calculate Cost 🔍</button>
+
+                <button onClick={() => setStep(3)} className="w-full bg-emerald-600 text-white font-bold text-lg py-5 rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">
+                  Calculate Total Cost 🔍
+                </button>
               </div>
             </div>
           )}
 
-          {/* STEP 3: RESULTS (FREE & SECURE CHECKOUT) */}
+          {/* STEP 3: RESULTS & SECURE CHECKOUT */}
           {step === 3 && !isPremium && (
             <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
               {!isVerifying && <button onClick={() => setStep(2)} className="text-sm text-slate-400 hover:text-slate-600">← Edit Details</button>}
               
-              {/* THE BIG NUMBER */}
               <div className="bg-white p-8 rounded-3xl shadow-sm border border-emerald-100 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-5"><Building className="h-32 w-32"/></div>
+                <div className="absolute top-0 right-0 p-4 opacity-5"><HomeIcon className="h-32 w-32"/></div>
                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Estimated Total Cost</h3>
                 <div className="text-5xl font-black text-emerald-700 mb-2">रु. {totalCost.toLocaleString('en-IN')}</div>
                 <p className="text-slate-500 font-medium pb-6 border-b border-slate-100">
-                  📍 <span className="capitalize">{district}</span> • {floors} Floors • {(floors * area).toLocaleString()} sqft • <span className="capitalize">{quality}</span>
+                  📍 <span className="capitalize">{district}</span> • {safeFloors} Floors • {totalArea.toLocaleString()} sqft • <span className="capitalize">{quality}</span>
                 </p>
                 
-                {/* COST BREAKDOWN (FREE) */}
                 <div className="mt-6 space-y-4">
                   <h4 className="text-sm font-bold text-slate-900">Cost Breakdown</h4>
                   {Object.entries(BREAKDOWN).map(([category, pct]) => (
@@ -273,14 +323,13 @@ export default function Home() {
               {/* CHECKOUT SYSTEM */}
               <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
                 
-                {/* PITCH */}
                 {checkoutStep === 0 && !isVerifying && (
                   <>
                     <h3 className="text-xl font-bold flex items-center gap-2 mb-4"><Lock className="h-5 w-5 text-emerald-400"/> Get the Official BOQ Report</h3>
                     <ul className="space-y-3 mb-8 text-slate-300 text-sm">
                       <li className="flex items-center gap-2">✓ Exact Material Quantities (Cement, Steel, Bricks)</li>
                       <li className="flex items-center gap-2">✓ Labor vs. Material Cost Distribution</li>
-                      <li className="flex items-center gap-2 text-emerald-400">✓ NEW: Structural & Seismic Guidelines (NBC 105:2020)</li>
+                      <li className="flex items-center gap-2 text-emerald-400 font-bold">✓ NEW: Updated to NBC 105:2025 Seismic Codes</li>
                       <li className="flex items-center gap-2">✓ Downloadable PDF for Banks & Contractors</li>
                     </ul>
                     <button onClick={() => setCheckoutStep(1)} className="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl hover:bg-emerald-400 transition-all text-lg shadow-lg shadow-emerald-500/30">
@@ -289,14 +338,13 @@ export default function Home() {
                   </>
                 )}
 
-                {/* PRE-CAPTURE CONTACT FORM */}
                 {checkoutStep === 1 && !isVerifying && (
                   <div className="animate-in fade-in slide-in-from-right-4">
                     <h3 className="text-lg font-bold mb-2">Where should we send this?</h3>
                     <p className="text-sm text-slate-400 mb-6">Enter your details to secure your report before payment.</p>
                     <div className="space-y-4 mb-6">
-                      <input type="text" placeholder="Your Full Name" value={customerName} onChange={e => setCustomerName(e.target.value)} className="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:border-emerald-500 text-white" />
-                      <input type="tel" placeholder="Your Phone Number" value={phone} onChange={e => setPhone(e.target.value)} className="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:border-emerald-500 text-white" />
+                      <input type="text" placeholder="Your Full Name (तपाईंको नाम)" value={customerName} onChange={e => setCustomerName(e.target.value)} className="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:border-emerald-500 text-white" />
+                      <input type="tel" placeholder="Phone Number (फोन नम्बर)" value={phone} onChange={e => setPhone(e.target.value)} className="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:border-emerald-500 text-white" />
                     </div>
                     <button onClick={handleContactSubmit} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-500 transition-all flex justify-center items-center gap-2">
                       Proceed to Payment <ArrowRight className="h-5 w-5"/>
@@ -305,7 +353,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* QR CODE & TX ID */}
                 {checkoutStep === 2 && !isVerifying && (
                   <div className="animate-in fade-in slide-in-from-right-4">
                      <h3 className="text-lg font-bold mb-4 flex items-center justify-between">
@@ -327,7 +374,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* VERIFYING (SLEEP-PROOF) */}
                 {isVerifying && (
                   <div className="text-center py-8 animate-in fade-in zoom-in duration-500">
                     <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
@@ -349,7 +395,6 @@ export default function Home() {
           )}
         </main>
         
-        {/* FOOTER */}
         <div className="text-center py-12 text-sm text-slate-400">
           <p>Built by Er. Angel Mainali, Civil Engineer.</p>
           <div className="flex justify-center gap-4 mt-2">
@@ -393,8 +438,8 @@ export default function Home() {
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><MapPin className="h-5 w-5"/> Project Details</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div><p className="text-sm text-slate-500">Location</p><p className="font-bold capitalize">{district}, Nepal</p></div>
-                <div><p className="text-sm text-slate-500">Total Area</p><p className="font-bold">{(floors * area).toLocaleString()} sq.ft</p></div>
-                <div><p className="text-sm text-slate-500">Structure</p><p className="font-bold">{floors} Floors (RCC)</p></div>
+                <div><p className="text-sm text-slate-500">Total Area</p><p className="font-bold">{totalArea.toLocaleString()} sq.ft</p></div>
+                <div><p className="text-sm text-slate-500">Structure</p><p className="font-bold">{safeFloors} Floors (RCC)</p></div>
                 <div><p className="text-sm text-slate-500">Finish Quality</p><p className="font-bold capitalize">{quality}</p></div>
               </div>
               <div className="mt-6 pt-6 border-t border-slate-200 flex justify-between items-center">
@@ -455,13 +500,12 @@ export default function Home() {
               </div>
             </div>
 
-            {/* NEW ENGINEERING VALUE ADD */}
             <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mt-6 print:bg-transparent print:border-slate-300">
-              <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2"><ShieldAlert className="h-5 w-5"/> Structural Safety & Guidelines (NBC 105:2020)</h3>
+              <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2"><ShieldAlert className="h-5 w-5"/> Structural Safety & Guidelines (Updated for NBC 105:2025)</h3>
               <ul className="text-sm text-slate-700 space-y-2">
-                <li>• <strong>Minimum Column Size:</strong> Must not be less than 12&quot; x 12&quot; (300mm x 300mm) for residential buildings.</li>
-                <li>• <strong>Rebar Configuration:</strong> Minimum of 4-16mm Ø and 4-12mm Ø longitudinal bars for primary columns. Fe500 grade steel highly recommended.</li>
-                <li>• <strong>Foundation Depth:</strong> Minimum 5 feet depth for isolated footings in normal soil conditions. Must conduct soil test for Black Cotton Soil.</li>
+                <li>• <strong>Seismic Compliance:</strong> Design forces must align with NBC 105:2025 updates, enforcing stricter displacement checks and soil pressure limits.</li>
+                <li>• <strong>Minimum Column Size:</strong> Must not be less than 12&quot; x 12&quot; (300mm x 300mm) for residential buildings in active seismic zones.</li>
+                <li>• <strong>Rebar Configuration:</strong> Minimum of 4-16mm Ø and 4-12mm Ø longitudinal bars. Fe500 or Fe550 grade steel highly recommended.</li>
                 <li>• <strong>Cement Mix:</strong> Use M20 grade concrete (1:1.5:3 ratio) minimum for all structural RCC members.</li>
               </ul>
             </div>
@@ -470,7 +514,7 @@ export default function Home() {
               <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2 print:text-slate-900"><ClipboardList className="h-5 w-5"/> Municipality Requirements (नक्सा पास)</h3>
               <ul className="text-sm text-blue-800 space-y-2 print:text-slate-700">
                 <li>• Ensure Land Ownership Document (Lalpurja) and Land Tax Receipt (Tiro) are updated.</li>
-                <li>• Hire a registered firm for Architectural and Structural drawings conforming to NBC 105:2020.</li>
+                <li>• Hire a registered firm for Architectural and Structural drawings. Ensure soil testing for structures above 2.5 stories.</li>
                 <li>• Above estimates do not include furniture, compound walls, or municipality approval fees.</li>
               </ul>
             </div>
