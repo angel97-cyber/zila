@@ -87,31 +87,30 @@ export default function Home() {
 
   // --- LOCAL STORAGE (SAVE STATE) ---
   useEffect(() => {
-    // When page loads, check if they already bought a report recently
-    const savedId = localStorage.getItem('zila_estimate_id');
-    if (savedId) {
-      checkExistingReport(savedId);
-    }
-  }, []);
+    const checkSavedReport = async () => {
+      const savedId = localStorage.getItem('zila_estimate_id');
+      if (!savedId) return;
 
-  const checkExistingReport = async (id: string) => {
-    const { data } = await supabase.from('estimates').select('*').eq('id', id).single();
-    if (data) {
-      setEstimateId(data.id);
-      setDistrict(data.district);
-      setFloors(data.floors);
-      setArea(data.area_per_floor);
-      setQuality(data.quality);
-      
-      if (data.premium) {
-        setIsPremium(true);
-        setStep(3);
-      } else if (data.payment_ref) {
-        setStep(3);
-        setIsVerifying(true);
+      const { data } = await supabase.from('estimates').select('*').eq('id', savedId).single();
+      if (data) {
+        setEstimateId(data.id);
+        setDistrict(data.district);
+        setFloors(data.floors);
+        setArea(data.area_per_floor);
+        setQuality(data.quality);
+        
+        if (data.premium) {
+          setIsPremium(true);
+          setStep(3);
+        } else if (data.payment_ref) {
+          setStep(3);
+          setIsVerifying(true);
+        }
       }
-    }
-  };
+    };
+
+    checkSavedReport();
+  }, []);
 
   // --- CHECKOUT FLOW ---
   // STEP 1: Save Contact Info First (The Ghost Payer Fix)
