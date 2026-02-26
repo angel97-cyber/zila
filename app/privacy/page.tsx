@@ -6,7 +6,7 @@ export default function PrivacyPage() {
 
       {/* HEADER */}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
-        <div className="font-bold text-xl tracking-tight text-slate-900">ZILA & WALLS</div>
+        <div className="font-bold text-xl tracking-tight text-slate-900">ZILA & ZILA LANDKIT</div>
         <Link href="/" className="text-sm text-slate-500 hover:text-emerald-600 font-medium transition-colors">
           ← Back to App
         </Link>
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-bold mb-3 text-slate-900 border-b pb-2">1. Introduction</h2>
             <p>
-              This Privacy Policy applies to the software suite developed by Er. Angel Mainali, which currently includes <strong>ZILA</strong> (a construction cost estimator web app) and <strong>WALLS</strong> (a browser chat extension). We respect your privacy and are committed to protecting your data.
+              This Privacy Policy applies to the software suite developed by Er. Angel Mainali, which currently includes <strong>ZILA</strong> (a construction cost estimator web app) and <strong>Zila LandKit</strong> (a Chrome extension). We respect your privacy and are committed to protecting your data.
             </p>
           </section>
 

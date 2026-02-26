@@ -263,6 +263,21 @@ export default function Home() {
               <div className="space-y-8">
 
                 <div className="flex flex-col md:flex-row gap-6">
+
+                  {/* FLOORS INPUT (Restored!) */}
+                  <div className="flex-1">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+                      <Layers className="h-4 w-4" /> Total Floors <span className="text-slate-400 font-normal">(तल्लाको संख्या)</span>
+                    </label>
+                    <input
+                      type="number" step="0.5" min="1" max="10"
+                      value={floors} onChange={(e) => setFloors(e.target.value)}
+                      placeholder="e.g. 2.5"
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-lg font-medium outline-none focus:ring-2 focus:ring-blue-900"
+                    />
+                  </div>
+
+                  {/* AREA INPUT WITH NEW DROPDOWN */}
                   <div className="flex-1">
                     <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
                       <Ruler className="h-4 w-4" /> Area Per Floor <span className="text-slate-400 font-normal">(१ तल्लाको क्षेत्रफल)</span>
@@ -285,16 +300,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="flex-1">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
-                      <Ruler className="h-4 w-4" /> Area Per Floor <span className="text-slate-400 font-normal">(तल्लाको क्षेत्रफल)</span>
-                    </label>
-                    <input
-                      type="number" value={area} onChange={(e) => setArea(e.target.value)}
-                      placeholder="e.g. 1000"
-                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-lg font-medium outline-none focus:ring-2 focus:ring-blue-900"
-                    />
-                  </div>
                 </div>
 
                 <div className="bg-emerald-50 text-emerald-800 p-3 rounded-lg text-sm font-semibold text-center border border-emerald-100">
