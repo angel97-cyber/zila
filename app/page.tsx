@@ -219,7 +219,7 @@ export default function Home() {
         {/* HEADER */}
         <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
           <div className="flex items-center gap-2">
-            <Building className="text-blue-900 h-6 w-6" />
+            <Image src="/logo.png" alt="ZILA Logo" width={28} height={28} className="object-contain" />
             <span className="font-bold text-xl tracking-tight text-blue-900">ZILA</span>
           </div>
           <div className="flex items-center gap-4 text-sm font-medium">
