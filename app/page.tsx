@@ -14,38 +14,48 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // --- ENGINEERING BRAIN (NEPAL 2082/2083 - NBC 105:2025 COMPLIANT) ---
 const RATES: Record<string, Record<string, Record<string, number>>> = {
   nepal: {
-    // Valley (High Cost)
+    // === BATCH 1: Valley & Core (Previously Verified) ===
     kathmandu: { basic: 3500, standard: 4800, premium: 6800, luxury: 9000 },
     lalitpur: { basic: 3400, standard: 4700, premium: 6700, luxury: 8800 },
     bhaktapur: { basic: 3300, standard: 4600, premium: 6600, luxury: 8700 },
     kavre: { basic: 3200, standard: 4500, premium: 6400, luxury: 8500 },
-    // Gandaki / Hills
+
+    // === BATCH 2: Major Hilly Hubs & Gandaki Province ===
+    // Pokhara is highly competitive but transport logistics from Terai add a small premium.
     pokhara: { basic: 3400, standard: 4600, premium: 6500, luxury: 8500 },
-    baglung: { basic: 3300, standard: 4500, premium: 6300, luxury: 8300 },
-    gorkha: { basic: 3200, standard: 4400, premium: 6200, luxury: 8200 },
-    // Terai / Industrial Hubs
+    // Deep hills face heavy freight surcharges on cement/steel. Local stone helps slightly.
+    gorkha: { basic: 3350, standard: 4550, premium: 6400, luxury: 8400 },
+    syangja: { basic: 3300, standard: 4500, premium: 6300, luxury: 8300 },
+    baglung: { basic: 3350, standard: 4550, premium: 6400, luxury: 8400 },
+    parbat: { basic: 3300, standard: 4500, premium: 6300, luxury: 8300 },
+    myagdi: { basic: 3400, standard: 4600, premium: 6450, luxury: 8450 },
+    lamjung: { basic: 3350, standard: 4550, premium: 6400, luxury: 8400 },
+    tanahun: { basic: 3250, standard: 4450, premium: 6200, luxury: 8200 },
+
+    // === BATCH 3: Major Terai Hubs & Madhesh ===
+    // Industrial hubs. Lowest material transport costs in Nepal. High labor availability.
     chitwan: { basic: 3000, standard: 4200, premium: 5800, luxury: 7800 },
-    butwal: { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 },
-    biratnagar: { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 },
-    jhapa: { basic: 2850, standard: 4000, premium: 5600, luxury: 7500 },
-    morang: { basic: 2850, standard: 4000, premium: 5600, luxury: 7500 },
-    sunsari: { basic: 2850, standard: 4000, premium: 5600, luxury: 7500 },
-    parsa: { basic: 2800, standard: 3900, premium: 5500, luxury: 7400 },
-    dhanusha: { basic: 2800, standard: 3900, premium: 5500, luxury: 7400 },
-    // Mid/Far-West
-    dang: { basic: 2950, standard: 4150, premium: 5800, luxury: 7700 },
-    banke: { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 },
-    surkhet: { basic: 3100, standard: 4300, premium: 6000, luxury: 8000 },
-    kailali: { basic: 3000, standard: 4200, premium: 5900, luxury: 7900 },
-    kanchanpur: { basic: 3000, standard: 4200, premium: 5900, luxury: 7900 },
+    nawalpur: { basic: 3000, standard: 4200, premium: 5800, luxury: 7800 },
+    makwanpur: { basic: 2950, standard: 4150, premium: 5700, luxury: 7700 }, // Hetauda Cement advantage
+    parsa: { basic: 2850, standard: 4000, premium: 5600, luxury: 7500 }, // Birgunj border advantage
+    bara: { basic: 2850, standard: 4000, premium: 5600, luxury: 7500 },
+    rupandehi: { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 }, // Butwal/Bhairahawa
+    banke: { basic: 2950, standard: 4150, premium: 5750, luxury: 7650 }, // Nepalgunj
+    dang: { basic: 3000, standard: 4200, premium: 5800, luxury: 7800 },
+    kailali: { basic: 3050, standard: 4250, premium: 5900, luxury: 7900 }, // Dhangadhi
+    kanchanpur: { basic: 3050, standard: 4250, premium: 5900, luxury: 7900 },
+    dhanusha: { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 }, // Janakpur
+    sunsari: { basic: 2950, standard: 4150, premium: 5750, luxury: 7650 }, // Itahari/Dharan
+    morang: { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 }, // Biratnagar
+    jhapa: { basic: 2950, standard: 4150, premium: 5750, luxury: 7650 }, // Birtamod
   },
 };
 
 const QUALITY_INFO: Record<string, { title: string; desc: string; emoji: string }> = {
-  basic: { title: "Basic (सामान्य)", desc: "Normal bricks, budget tiles, standard distemper paint. Standard wiring.", emoji: "🧱" },
-  standard: { title: "Standard (मध्यम)", desc: "Good quality bricks, standard tiles, emulsion paint, modular kitchen prep.", emoji: "🏠" },
-  premium: { title: "Premium (उत्तम)", desc: "Premium paint, false ceiling, granite counters, modern modular kitchen.", emoji: "✨" },
-  luxury: { title: "Luxury (विलासी)", desc: "Italian marble, central AC prep, smart home features, premium wood.", emoji: "💎" },
+  basic: { title: "Basic (सामान्य)", desc: "Standard flooring, basic paint, simple wiring. No false ceiling.", emoji: "🧱" },
+  standard: { title: "Standard (मध्यम)", desc: "Vitrified tiles, emulsion paint, false ceiling & granite kitchen slab included.", emoji: "🏠" },
+  premium: { title: "Premium (उत्तम)", desc: "Designer false ceiling, premium paint, modular kitchen prep, branded sanitary.", emoji: "✨" },
+  luxury: { title: "Luxury (विलासी)", desc: "Italian marble, smart home features, central AC prep, premium woodwork.", emoji: "💎" },
 };
 
 const BREAKDOWN = {
@@ -82,6 +92,33 @@ const TIMELINE = [
   { phase: "Plumbing & Electrical Rough-ins", duration: "3 to 4 Weeks" },
   { phase: "Flooring, Painting & Finishing", duration: "6 to 8 Weeks" },
 ];
+const PREFAB_BREAKDOWN = {
+  "Foundation & Plinth (RCC/PCC)": 0.15,
+  "Steel Skeleton (MS Tubes)": 0.25,
+  "Wall & Roof Panels (EPS/PUF)": 0.20,
+  "Doors & Windows": 0.10,
+  "Plumbing & Sanitary": 0.10,
+  "Electrical Works": 0.08,
+  "Flooring & Finishing": 0.07,
+  "Contingency / Misc": 0.05,
+};
+
+const PREFAB_TIMELINE = [
+  { phase: "Foundation & Plinth", duration: "2 to 3 Weeks" },
+  { phase: "Steel Skeleton Erection", duration: "1 to 2 Weeks" },
+  { phase: "Panel Installation (Walls/Roof)", duration: "1 to 2 Weeks" },
+  { phase: "Plumbing & Electrical", duration: "1 Week" },
+  { phase: "Flooring, Painting & Finishing", duration: "1 to 2 Weeks" },
+];
+
+const PREFAB_MATERIALS_PER_SQFT = {
+  "EPS/PUF Sandwich Panels (sq.ft)": 1.30,
+  "MS Steel Tubes (Skeleton Frame) (kg)": 2.50,
+  "Cement (Foundation & Plinth only) (bags)": 0.15,
+  "Sand & Aggregate (cu.ft)": 1.20,
+  "Paint (liters - interior minimal)": 0.05,
+  "Tiles / PVC Flooring (sq.ft)": 1.05,
+};
 
 export default function Home() {
   // --- STATE ---
@@ -93,6 +130,8 @@ export default function Home() {
   const [area, setArea] = useState<number | string>(1000);
   const [areaUnit, setAreaUnit] = useState("sq.ft");
   const [quality, setQuality] = useState("standard");
+  const [structureType, setStructureType] = useState("rcc");
+  const [includeExternal, setIncludeExternal] = useState(false);
 
   // Checkout States
   const [checkoutStep, setCheckoutStep] = useState(0);
@@ -108,19 +147,41 @@ export default function Home() {
   const [verificationTime, setVerificationTime] = useState(0);
 
   // --- CALCULATION LOGIC ---
-  // --- CALCULATION LOGIC ---
   const safeFloors = Number(floors) || 0;
   const safeArea = Number(area) || 0;
 
-  // Convert everything to sq.ft under the hood for our engineering brain
   let areaInSqFt = safeArea;
   if (areaUnit === "sq.m") areaInSqFt = safeArea * 10.7639;
-  if (areaUnit === "aana") areaInSqFt = safeArea * 342.25; // Standard Aana
-  if (areaUnit === "dhur") areaInSqFt = safeArea * 169.31; // Standard Terai Dhur
+  if (areaUnit === "aana") areaInSqFt = safeArea * 342.25;
+  if (areaUnit === "dhur") areaInSqFt = safeArea * 169.31;
 
   const totalArea = Math.round(safeFloors * areaInSqFt);
-  const ratePerSqft = RATES[country][district] ? RATES[country][district][quality] : RATES[country]['kathmandu'][quality];
-  const totalCost = totalArea * ratePerSqft;
+
+  // Base Rate
+  let ratePerSqft = RATES[country][district] ? RATES[country][district][quality] : RATES[country]['kathmandu'][quality];
+
+  // Prefab Discount
+  if (structureType === "prefab") {
+    ratePerSqft = Math.round(ratePerSqft * 0.68);
+  }
+
+  // Base House Cost (Just the building)
+  const baseHouseCost = totalArea * ratePerSqft;
+
+  // External Works (Compound, Gate, Septic, Boring)
+  let externalCost = 0;
+  if (includeExternal) {
+    // In Terai, boring and brick walls are slightly cheaper than the Valley/Hills
+    externalCost = ratePerSqft < 4200 ? 600000 : 750000;
+  }
+
+  // Final Total
+  const totalCost = baseHouseCost + externalCost;
+
+  const activeMaterials = structureType === "prefab" ? PREFAB_MATERIALS_PER_SQFT : MATERIALS_PER_SQFT;
+  // NEW DYNAMIC VARIABLES
+  const activeBreakdown = structureType === "prefab" ? PREFAB_BREAKDOWN : BREAKDOWN;
+  const activeTimeline = structureType === "prefab" ? PREFAB_TIMELINE : TIMELINE;
 
   // --- LOCAL STORAGE (SAVE STATE) ---
   useEffect(() => {
@@ -254,7 +315,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* STEP 2: DETAILS */}
+          {/* STEP 2: DETAILS (RESPONSIVE GRID FIX) */}
           {step === 2 && (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 animate-in fade-in slide-in-from-right-8 duration-500">
               <button onClick={() => setStep(1)} className="text-sm text-slate-400 mb-6 hover:text-slate-600">← Back</button>
@@ -262,11 +323,29 @@ export default function Home() {
 
               <div className="space-y-8">
 
-                <div className="flex flex-col md:flex-row gap-6">
+                {/* 1. STRUCTURE TYPE (Full Width Row) */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
+                    <Building className="h-4 w-4" /> Structure Type <span className="text-slate-400 font-normal">(घरको प्रकार)</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button onClick={() => setStructureType("rcc")} className={`p-4 rounded-xl border text-center sm:text-left transition-all ${structureType === "rcc" ? 'border-blue-900 bg-blue-50 ring-1 ring-blue-900 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'}`}>
+                      <div className={`font-bold text-lg ${structureType === "rcc" ? "text-blue-900" : "text-slate-700"}`}>Traditional RCC Pillar</div>
+                      <div className="text-sm mt-1 opacity-80">(पिलर वाला पक्की घर)</div>
+                    </button>
+                    <button onClick={() => setStructureType("prefab")} className={`p-4 rounded-xl border text-center sm:text-left transition-all ${structureType === "prefab" ? 'border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-300'}`}>
+                      <div className={`font-bold text-lg ${structureType === "prefab" ? "text-emerald-700" : "text-slate-700"}`}>Prefab / Sandwich Panel</div>
+                      <div className="text-sm mt-1 opacity-80">(प्रिफ्याब घर)</div>
+                    </button>
+                  </div>
+                </div>
 
-                  {/* FLOORS INPUT (Restored!) */}
-                  <div className="flex-1">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+                {/* 2. FLOORS AND AREA (Split Row on Desktop, Stacked on Mobile) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                  {/* FLOORS INPUT */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
                       <Layers className="h-4 w-4" /> Total Floors <span className="text-slate-400 font-normal">(तल्लाको संख्या)</span>
                     </label>
                     <input
@@ -278,19 +357,19 @@ export default function Home() {
                   </div>
 
                   {/* AREA INPUT WITH NEW DROPDOWN */}
-                  <div className="flex-1">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
                       <Ruler className="h-4 w-4" /> Area Per Floor <span className="text-slate-400 font-normal">(१ तल्लाको क्षेत्रफल)</span>
                     </label>
                     <div className="flex gap-2">
                       <input
                         type="number" value={area} onChange={(e) => setArea(e.target.value)}
                         placeholder="e.g. 1000"
-                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-lg font-medium outline-none focus:ring-2 focus:ring-blue-900"
+                        className="w-full flex-1 p-4 bg-slate-50 border border-slate-200 rounded-xl text-lg font-medium outline-none focus:ring-2 focus:ring-blue-900"
                       />
                       <select
                         value={areaUnit} onChange={(e) => setAreaUnit(e.target.value)}
-                        className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-900"
+                        className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-900 w-28 shrink-0"
                       >
                         <option value="sq.ft">Sq.ft</option>
                         <option value="sq.m">Sq.m</option>
@@ -302,10 +381,12 @@ export default function Home() {
 
                 </div>
 
-                <div className="bg-emerald-50 text-emerald-800 p-3 rounded-lg text-sm font-semibold text-center border border-emerald-100">
+                {/* 3. TOTAL AREA BANNER */}
+                <div className="bg-emerald-50 text-emerald-800 p-4 rounded-xl text-sm font-semibold text-center border border-emerald-100">
                   Total Built-up Area: {totalArea.toLocaleString()} sq ft
                 </div>
 
+                {/* 4. FINISH QUALITY */}
                 <div>
                   <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-4">
                     <CheckCircle2 className="h-4 w-4" /> Finish Quality <span className="text-slate-400 font-normal">(फिनिसिङ कस्तो गर्ने?)</span>
@@ -331,7 +412,19 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-
+                {/* NEW: EXTERNAL WORKS CHECKBOX */}
+                <label className="flex items-center gap-4 p-5 border border-slate-200 rounded-xl bg-slate-50 cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition-all">
+                  <input
+                    type="checkbox"
+                    checked={includeExternal}
+                    onChange={(e) => setIncludeExternal(e.target.checked)}
+                    className="w-6 h-6 accent-blue-600 rounded cursor-pointer"
+                  />
+                  <div>
+                    <div className="font-bold text-slate-800">Include External Works <span className="text-slate-500 font-normal">(कम्पाउन्ड, सेफ्टी ट्याङ्की, गेट)</span></div>
+                    <div className="text-xs text-slate-500 mt-1">Adds Boundary Wall, Septic Tank, Main Gate, and Water Boring (Approx. Rs. 6 to 8 Lakhs)</div>
+                  </div>
+                </label>
                 <button onClick={() => { setStep(3); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="w-full bg-emerald-600 text-white font-bold text-lg py-5 rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20">
                   Calculate Total Cost 🔍
                 </button>
@@ -354,17 +447,26 @@ export default function Home() {
 
                 <div className="mt-6 space-y-4">
                   <h4 className="text-sm font-bold text-slate-900">Cost Breakdown</h4>
-                  {Object.entries(BREAKDOWN).map(([category, pct]) => (
+                  {Object.entries(activeBreakdown).map(([category, pct]) => (
                     <div key={category}>
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-slate-600">{category}</span>
-                        <span className="font-semibold text-slate-900">रु. {Math.round(totalCost * pct).toLocaleString('en-IN')}</span>
+                        <span className="font-semibold text-slate-900">रु. {Math.round(baseHouseCost * pct).toLocaleString('en-IN')}</span>
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2">
                         <div className="bg-blue-900 h-2 rounded-full opacity-80" style={{ width: `${pct * 100}%` }}></div>
                       </div>
                     </div>
                   ))}
+
+                  {includeExternal && (
+                    <div className="pt-4 mt-4 border-t border-slate-200">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-slate-800 font-bold">External Works (Compound, Gate, Septic)</span>
+                        <span className="font-black text-emerald-700">रु. {externalCost.toLocaleString('en-IN')}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -506,7 +608,7 @@ export default function Home() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div><p className="text-sm text-slate-500">Location</p><p className="font-bold capitalize">{district}, Nepal</p></div>
                 <div><p className="text-sm text-slate-500">Total Area</p><p className="font-bold">{totalArea.toLocaleString()} sq.ft</p></div>
-                <div><p className="text-sm text-slate-500">Structure</p><p className="font-bold">{safeFloors} Floors (RCC)</p></div>
+                <div><p className="text-sm text-slate-500">Structure</p><p className="font-bold">{safeFloors} Floors ({structureType === 'rcc' ? 'RCC' : 'Prefab'})</p></div>
                 <div><p className="text-sm text-slate-500">Finish Quality</p><p className="font-bold capitalize">{quality}</p></div>
               </div>
               <div className="mt-6 pt-6 border-t border-slate-200 flex justify-between items-center">
@@ -518,7 +620,7 @@ export default function Home() {
             <div>
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><Layers className="h-5 w-5" /> Phase-wise Cost Breakdown</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-                {Object.entries(BREAKDOWN).map(([category, pct]) => (
+                {Object.entries(activeBreakdown).map(([category, pct]) => (
                   <div key={category} className="flex justify-between items-center py-2 border-b border-slate-50">
                     <span className="text-slate-700 text-sm">{category}</span>
                     <span className="font-bold text-slate-900">रु. {Math.round(totalCost * pct).toLocaleString('en-IN')}</span>
@@ -531,7 +633,7 @@ export default function Home() {
               <div>
                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><HardHat className="h-5 w-5" /> Required Materials</h3>
                 <div className="space-y-3">
-                  {Object.entries(MATERIALS_PER_SQFT).map(([material, multiplier]) => (
+                  {Object.entries(activeMaterials).map(([material, multiplier]) => (
                     <div key={material} className="flex justify-between items-center py-2 border-b border-slate-100 border-dashed">
                       <span className="text-slate-700 text-sm">{material}</span>
                       <span className="font-bold text-slate-900">{Math.round(totalArea * multiplier).toLocaleString('en-IN')}</span>
@@ -556,7 +658,7 @@ export default function Home() {
                 <div>
                   <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><Clock className="h-5 w-5" /> Est. Timeline</h3>
                   <div className="space-y-2">
-                    {TIMELINE.map((item, i) => (
+                    {activeTimeline.map((item, i) => (
                       <div key={i} className="flex justify-between items-center text-sm">
                         <span className="text-slate-600">• {item.phase}</span>
                         <span className="font-medium">{item.duration}</span>
@@ -567,14 +669,28 @@ export default function Home() {
               </div>
             </div>
 
+            {/* DYNAMIC ENGINEERING GUIDELINES */}
             <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mt-6 print:bg-transparent print:border-slate-300">
-              <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2"><ShieldAlert className="h-5 w-5" /> Structural Safety & Guidelines (Updated for NBC 105:2025)</h3>
-              <ul className="text-sm text-slate-700 space-y-2">
-                <li>• <strong>Seismic Compliance:</strong> Design forces must align with NBC 105:2025 updates, enforcing stricter displacement checks and soil pressure limits.</li>
-                <li>• <strong>Minimum Column Size:</strong> Must not be less than 12&quot; x 12&quot; (300mm x 300mm) for residential buildings in active seismic zones.</li>
-                <li>• <strong>Rebar Configuration:</strong> Minimum of 4-16mm Ø and 4-12mm Ø longitudinal bars. Fe500 or Fe550 grade steel highly recommended.</li>
-                <li>• <strong>Cement Mix:</strong> Use M20 grade concrete (1:1.5:3 ratio) minimum for all structural RCC members.</li>
-              </ul>
+              <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                <ShieldAlert className="h-5 w-5" />
+                Structural Safety & Guidelines {structureType === 'rcc' ? '(Updated for NBC 105:2025)' : '(Prefab/Sandwich Panel)'}
+              </h3>
+
+              {structureType === "rcc" ? (
+                <ul className="text-sm text-slate-700 space-y-2">
+                  <li>• <strong>Seismic Compliance:</strong> Design forces must align with NBC 105:2025 updates, enforcing stricter displacement checks and soil pressure limits.</li>
+                  <li>• <strong>Minimum Column Size:</strong> Must not be less than 12&quot; x 12&quot; (300mm x 300mm) for residential buildings in active seismic zones.</li>
+                  <li>• <strong>Rebar Configuration:</strong> Minimum of 4-16mm Ø and 4-12mm Ø longitudinal bars. Fe500 or Fe550 grade steel highly recommended.</li>
+                  <li>• <strong>Cement Mix:</strong> Use M20 grade concrete (1:1.5:3 ratio) minimum for all structural RCC members.</li>
+                </ul>
+              ) : (
+                <ul className="text-sm text-slate-700 space-y-2">
+                  <li>• <strong>Steel Skeleton:</strong> MS Steel tubular sections must be treated with anti-rust red oxide or epoxy primer before panel installation.</li>
+                  <li>• <strong>Panel Specifications:</strong> Use EPS (Expanded Polystyrene) or PUF panels with a minimum thickness of 50mm for adequate thermal insulation in Nepal&apos;s climate.</li>
+                  <li>• <strong>Foundation Required:</strong> Despite being lightweight, RCC isolated footings and tie-beams are still required for seismic stability and to prevent wind-uplift.</li>
+                  <li>• <strong>Roofing:</strong> Ensure UPVC or Color-coated CGI sheets are installed with proper overlaps and J-hooks to prevent monsoon leakage.</li>
+                </ul>
+              )}
             </div>
 
             <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 mt-6 print:bg-transparent print:border-slate-300">
