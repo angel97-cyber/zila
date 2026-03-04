@@ -11,51 +11,63 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// --- ENGINEERING BRAIN (NEPAL 2082/2083 - NBC 105:2025 COMPLIANT) ---
+// --- NEPAL MASTER DATABASE (2082/2083 B.S. INFLATION & LOGISTICS ADJUSTED) ---
 const RATES: Record<string, Record<string, Record<string, number>>> = {
   nepal: {
-    // === BATCH 1: Valley & Core (Previously Verified) ===
-    kathmandu: { basic: 3500, standard: 4800, premium: 6800, luxury: 9000 },
-    lalitpur: { basic: 3400, standard: 4700, premium: 6700, luxury: 8800 },
-    bhaktapur: { basic: 3300, standard: 4600, premium: 6600, luxury: 8700 },
-    kavre: { basic: 3200, standard: 4500, premium: 6400, luxury: 8500 },
+    // --- BATCH 1: Valley & Core ---
+    "Kathmandu (Core City)": { structure: 2350, economy: 3800, standard: 5100, premium: 7200 },
+    "Kathmandu (Outskirts - Tokha/Etc)": { structure: 2150, economy: 3500, standard: 4700, premium: 6600 },
+    "Lalitpur (Patan Core)": { structure: 2300, economy: 3750, standard: 5000, premium: 7100 },
+    "Lalitpur (Godawari/Imadol)": { structure: 2050, economy: 3400, standard: 4500, premium: 6200 },
+    "Bhaktapur (Core City)": { structure: 2200, economy: 3600, standard: 4800, premium: 6800 },
+    "Bhaktapur (Suryabinayak/Outskirts)": { structure: 1950, economy: 3300, standard: 4400, premium: 6000 },
+    "Kavre (Banepa/Dhulikhel)": { structure: 1950, economy: 3200, standard: 4250, premium: 5900 },
+    "Makwanpur (Hetauda)": { structure: 1850, economy: 3050, standard: 4050, premium: 5500 },
+    "Chitwan (Bharatpur)": { structure: 1850, economy: 3100, standard: 4150, premium: 5600 },
+    "Chitwan (Sauraha/East)": { structure: 1900, economy: 3200, standard: 4300, premium: 5800 },
 
-    // === BATCH 2: Major Hilly Hubs & Gandaki Province ===
-    // Pokhara is highly competitive but transport logistics from Terai add a small premium.
-    pokhara: { basic: 3400, standard: 4600, premium: 6500, luxury: 8500 },
-    // Deep hills face heavy freight surcharges on cement/steel. Local stone helps slightly.
-    gorkha: { basic: 3350, standard: 4550, premium: 6400, luxury: 8400 },
-    syangja: { basic: 3300, standard: 4500, premium: 6300, luxury: 8300 },
-    baglung: { basic: 3350, standard: 4550, premium: 6400, luxury: 8400 },
-    parbat: { basic: 3300, standard: 4500, premium: 6300, luxury: 8300 },
-    myagdi: { basic: 3400, standard: 4600, premium: 6450, luxury: 8450 },
-    lamjung: { basic: 3350, standard: 4550, premium: 6400, luxury: 8400 },
-    tanahun: { basic: 3250, standard: 4450, premium: 6200, luxury: 8200 },
+    // --- BATCH 2 & 3: Major Hubs (Hills & Terai) ---
+    "Kaski (Pokhara Core)": { structure: 2100, economy: 3500, standard: 4800, premium: 6800 },
+    "Kaski (Pokhara Outskirts)": { structure: 1950, economy: 3300, standard: 4400, premium: 6100 },
+    "Gorkha / Tanahun / Lamjung": { structure: 2150, economy: 3400, standard: 4450, premium: 6000 },
+    "Syangja": { structure: 2150, economy: 3400, standard: 4450, premium: 6000 },
+    "Baglung / Parbat / Myagdi": { structure: 2250, economy: 3500, standard: 4550, premium: 6100 },
+    "Nawalpur (Kawasoti)": { structure: 1850, economy: 3000, standard: 4100, premium: 5600 },
+    "Rupandehi (Butwal/Bhairahawa)": { structure: 1750, economy: 2900, standard: 3950, premium: 5400 },
+    "Parsa (Birgunj) / Bara": { structure: 1750, economy: 2850, standard: 3900, premium: 5300 },
+    "Jhapa / Morang / Sunsari": { structure: 1800, economy: 2950, standard: 4050, premium: 5500 },
+    "Dhanusha (Janakpur)": { structure: 1800, economy: 2900, standard: 3950, premium: 5400 },
+    "Dang / Banke (Nepalgunj)": { structure: 1850, economy: 3050, standard: 4150, premium: 5600 },
+    "Kailali / Kanchanpur": { structure: 1850, economy: 3050, standard: 4150, premium: 5600 },
 
-    // === BATCH 3: Major Terai Hubs & Madhesh ===
-    // Industrial hubs. Lowest material transport costs in Nepal. High labor availability.
-    chitwan: { basic: 3000, standard: 4200, premium: 5800, luxury: 7800 },
-    nawalpur: { basic: 3000, standard: 4200, premium: 5800, luxury: 7800 },
-    makwanpur: { basic: 2950, standard: 4150, premium: 5700, luxury: 7700 }, // Hetauda Cement advantage
-    parsa: { basic: 2850, standard: 4000, premium: 5600, luxury: 7500 }, // Birgunj border advantage
-    bara: { basic: 2850, standard: 4000, premium: 5600, luxury: 7500 },
-    rupandehi: { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 }, // Butwal/Bhairahawa
-    banke: { basic: 2950, standard: 4150, premium: 5750, luxury: 7650 }, // Nepalgunj
-    dang: { basic: 3000, standard: 4200, premium: 5800, luxury: 7800 },
-    kailali: { basic: 3050, standard: 4250, premium: 5900, luxury: 7900 }, // Dhangadhi
-    kanchanpur: { basic: 3050, standard: 4250, premium: 5900, luxury: 7900 },
-    dhanusha: { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 }, // Janakpur
-    sunsari: { basic: 2950, standard: 4150, premium: 5750, luxury: 7650 }, // Itahari/Dharan
-    morang: { basic: 2900, standard: 4100, premium: 5700, luxury: 7600 }, // Biratnagar
-    jhapa: { basic: 2950, standard: 4150, premium: 5750, luxury: 7650 }, // Birtamod
+    // --- BATCH 4 & 5: Baseline Districts (Standard Logistics) ---
+    "Saptari / Siraha / Mahottari": { structure: 1780, economy: 2900, standard: 3950, premium: 5400 },
+    "Sarlahi / Rautahat": { structure: 1780, economy: 2900, standard: 3950, premium: 5400 },
+    "Ilam / Dhankuta / Udayapur": { structure: 2050, economy: 3300, standard: 4350, premium: 5900 },
+    "Nuwakot / Dhading / Sindhuli": { structure: 2050, economy: 3300, standard: 4350, premium: 5900 },
+    "Sindhupalchok / Dolakha / Ramechhap": { structure: 2150, economy: 3450, standard: 4500, premium: 6100 },
+    "Kapilvastu / Parasi": { structure: 1800, economy: 2950, standard: 4000, premium: 5450 },
+    "Surkhet": { structure: 2000, economy: 3200, standard: 4300, premium: 5800 },
+    "Palpa / Gulmi / Arghakhanchi": { structure: 2250, economy: 3500, standard: 4600, premium: 6200 },
+    "Pyuthan / Salyan / Rolpa": { structure: 2250, economy: 3500, standard: 4600, premium: 6200 },
+    "Doti / Dadeldhura / Achham / Baitadi": { structure: 2250, economy: 3500, standard: 4600, premium: 6200 },
+
+    // --- BATCH 6: Extreme Mountains (Heli-Drop / Off-Road) ---
+    "Solukhumbu / Bhojpur / Okhaldhunga": { structure: 2500, economy: 3800, standard: 5000, premium: 6700 },
+    "Khotang / Panchthar / Taplejung": { structure: 2500, economy: 3800, standard: 5000, premium: 6700 },
+    "Jajarkot / Rukum / Sankhuwasabha": { structure: 2500, economy: 3800, standard: 5000, premium: 6700 },
+    "Manang / Mustang / Jumla": { structure: 3200, economy: 4800, standard: 6200, premium: 8000 },
+    "Kalikot / Bajura / Bajhang / Darchula": { structure: 3200, economy: 4800, standard: 6200, premium: 8000 },
+    "Dolpa / Mugu / Humla (Extreme)": { structure: 4500, economy: 6500, standard: 8500, premium: 11000 },
   },
 };
 
+// --- UPDATED ENGINEERING TIERS ---
 const QUALITY_INFO: Record<string, { title: string; desc: string; emoji: string }> = {
-  basic: { title: "Basic (सामान्य)", desc: "Standard flooring, basic paint, simple wiring. No false ceiling.", emoji: "🧱" },
-  standard: { title: "Standard (मध्यम)", desc: "Vitrified tiles, emulsion paint, false ceiling & granite kitchen slab included.", emoji: "🏠" },
-  premium: { title: "Premium (उत्तम)", desc: "Designer false ceiling, premium paint, modular kitchen prep, branded sanitary.", emoji: "✨" },
-  luxury: { title: "Luxury (विलासी)", desc: "Italian marble, smart home features, central AC prep, premium woodwork.", emoji: "💎" },
+  structure: { title: "Structure Only (ठाडो संरचना)", desc: "RCC Frame, pillars, brick walls. Unplastered. No wiring or plumbing.", emoji: "🏗️" },
+  economy: { title: "Economy Finish (सामान्य)", desc: "Basic plaster, local tiles, standard wiring, basic sanitary.", emoji: "🧱" },
+  standard: { title: "Standard Finish (मध्यम)", desc: "Emulsion paint, vitrified tiles, UPVC windows, false ceiling.", emoji: "🏠" },
+  premium: { title: "Premium Finish (उत्तम)", desc: "Designer finishes, modular kitchen prep, branded sanitary, custom woodwork.", emoji: "✨" },
 };
 
 const BREAKDOWN = {
@@ -124,7 +136,7 @@ export default function Home() {
   // --- STATE ---
   const [step, setStep] = useState(1);
   const [country, setCountry] = useState("nepal");
-  const [district, setDistrict] = useState("kathmandu");
+  const [district, setDistrict] = useState("Kathmandu (Core City)");
 
   const [floors, setFloors] = useState<number | string>(2);
   const [area, setArea] = useState<number | string>(1000);
@@ -158,7 +170,7 @@ export default function Home() {
   const totalArea = Math.round(safeFloors * areaInSqFt);
 
   // Base Rate
-  let ratePerSqft = RATES[country][district] ? RATES[country][district][quality] : RATES[country]['kathmandu'][quality];
+  let ratePerSqft = RATES[country][district] ? RATES[country][district][quality] : RATES[country]['Kathmandu (Core City)'][quality];
 
   // Prefab Discount
   if (structureType === "prefab") {
@@ -170,9 +182,18 @@ export default function Home() {
 
   // External Works (Compound, Gate, Septic, Boring)
   let externalCost = 0;
+  let externalBreakdown = { boring: 0, septic: 0, wall: 0 };
+
   if (includeExternal) {
-    // In Terai, boring and brick walls are slightly cheaper than the Valley/Hills
-    externalCost = ratePerSqft < 4200 ? 600000 : 750000;
+    // If the base rate is lower, it's usually Terai/Lowlands (Shallow boring, cheaper bricks)
+    if (ratePerSqft < 4200) {
+      externalBreakdown = { boring: 60000, septic: 150000, wall: 290000 }; // Terai Math
+      externalCost = 500000;
+    } else {
+      // Valley/Hills (Deep boring, expensive transport)
+      externalBreakdown = { boring: 220000, septic: 180000, wall: 350000 }; // Valley/Hills Math
+      externalCost = 750000;
+    }
   }
 
   // Final Total
@@ -461,9 +482,24 @@ export default function Home() {
 
                   {includeExternal && (
                     <div className="pt-4 mt-4 border-t border-slate-200">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-slate-800 font-bold">External Works (Compound, Gate, Septic)</span>
-                        <span className="font-black text-emerald-700">रु. {externalCost.toLocaleString('en-IN')}</span>
+                      <h4 className="text-sm font-bold text-slate-900 mb-3">External Works (Estimated)</h4>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-500">Compound Wall & Gate</span>
+                          <span className="font-semibold text-slate-700">रु. {externalBreakdown.wall.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-500">Septic Tank & Soak Pit</span>
+                          <span className="font-semibold text-slate-700">रु. {externalBreakdown.septic.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-500">{ratePerSqft < 4200 ? 'Shallow Tube-Well (Motor)' : 'Deep Water Boring'}</span>
+                          <span className="font-semibold text-slate-700">रु. {externalBreakdown.boring.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between text-sm pt-2 mt-2 border-t border-slate-100">
+                          <span className="text-slate-800 font-bold">Total External Works</span>
+                          <span className="font-black text-emerald-700">रु. {externalCost.toLocaleString('en-IN')}</span>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -567,9 +603,9 @@ export default function Home() {
           THE PREMIUM PDF REPORT
           ========================================================= */}
       {isPremium && (
-        <div id="printable-report" className="max-w-4xl mx-auto p-8 bg-white min-h-screen text-slate-900">
+        <div id="printable-report" className="max-w-5xl mx-auto p-8 bg-white min-h-screen text-slate-900 font-sans">
 
-          <div className="print:hidden flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+          <div className="print:hidden flex flex-col md:flex-row justify-between items-center gap-4 mb-12 bg-emerald-50 p-5 rounded-2xl border border-emerald-200">
             <div>
               <h2 className="text-emerald-800 font-bold text-lg">✅ Payment Verified!</h2>
               <p className="text-emerald-600 text-sm">Your official report is ready. Download it below.</p>
@@ -590,78 +626,127 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="space-y-8">
-            <div className="border-b-2 border-slate-900 pb-6 flex justify-between items-end">
+          <div className="space-y-10">
+            {/* Header */}
+            <div className="border-b-4 border-slate-900 pb-6 flex justify-between items-end">
               <div>
-                <h1 className="text-4xl font-black text-slate-900 tracking-tight">ZILA</h1>
-                <p className="text-lg font-bold text-slate-500 mt-1">Official Construction Estimate (BOQ)</p>
+                <h1 className="text-5xl font-black text-slate-900 tracking-tighter">ZILA</h1>
+                <p className="text-lg font-bold text-slate-500 mt-2 uppercase tracking-widest">Official Construction BOQ</p>
               </div>
-              <div className="text-right text-sm text-slate-600">
+              <div className="text-right text-sm text-slate-600 font-medium">
                 <p>Date: {new Date().toLocaleDateString()}</p>
-                <p>Est. ID: #{estimateId?.split('-')[0].toUpperCase()}</p>
+                <p>Est. ID: <span className="font-mono text-slate-900">#{estimateId?.split('-')[0].toUpperCase()}</span></p>
                 <p>Prepared by: Er. Angel Mainali</p>
               </div>
             </div>
 
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-              <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><MapPin className="h-5 w-5" /> Project Details</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div><p className="text-sm text-slate-500">Location</p><p className="font-bold capitalize">{district}, Nepal</p></div>
-                <div><p className="text-sm text-slate-500">Total Area</p><p className="font-bold">{totalArea.toLocaleString()} sq.ft</p></div>
-                <div><p className="text-sm text-slate-500">Structure</p><p className="font-bold">{safeFloors} Floors ({structureType === 'rcc' ? 'RCC' : 'Prefab'})</p></div>
-                <div><p className="text-sm text-slate-500">Finish Quality</p><p className="font-bold capitalize">{quality}</p></div>
+            {/* Grand Summary Banner */}
+            <div className="bg-slate-900 text-white rounded-2xl p-8 flex flex-col md:flex-row justify-between items-center shadow-xl print:bg-slate-50 print:text-slate-900 print:border print:border-slate-300 print:shadow-none">
+              <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6 w-full mb-8 md:mb-0 md:border-r border-slate-700 print:border-slate-300 md:pr-8">
+                <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">Location</p><p className="font-bold text-lg leading-tight">{district.split('(')[0].trim()}</p></div>
+                <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">Total Area</p><p className="font-bold text-lg leading-tight">{totalArea.toLocaleString()} sq.ft</p></div>
+                <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">Structure</p><p className="font-bold text-lg leading-tight">{safeFloors} Flr ({structureType === 'rcc' ? 'RCC' : 'Prefab'})</p></div>
+                <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">Finish Quality</p><p className="font-bold text-lg leading-tight capitalize">{quality}</p></div>
               </div>
-              <div className="mt-6 pt-6 border-t border-slate-200 flex justify-between items-center">
-                <span className="font-bold text-slate-600">Estimated Total Cost:</span>
-                <span className="text-3xl font-black text-slate-900">रु. {totalCost.toLocaleString('en-IN')}</span>
+              <div className="md:pl-8 text-left md:text-right w-full md:w-auto">
+                <p className="text-slate-400 text-xs uppercase tracking-wider mb-2 font-semibold">Estimated Grand Total</p>
+                <div className="text-4xl font-black text-emerald-400 print:text-slate-900 tracking-tight">रु. {totalCost.toLocaleString('en-IN')}</div>
               </div>
             </div>
 
-            <div>
-              <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><Layers className="h-5 w-5" /> Phase-wise Cost Breakdown</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-                {Object.entries(activeBreakdown).map(([category, pct]) => (
-                  <div key={category} className="flex justify-between items-center py-2 border-b border-slate-50">
-                    <span className="text-slate-700 text-sm">{category}</span>
-                    <span className="font-bold text-slate-900">रु. {Math.round(totalCost * pct).toLocaleString('en-IN')}</span>
+            {/* 2-Column Main Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+              {/* LEFT COLUMN: Cost Breakdown (7 cols) */}
+              <div className="lg:col-span-7 space-y-8">
+                <div className="border-2 border-slate-200 rounded-2xl overflow-hidden">
+                  <div className="bg-slate-50 border-b-2 border-slate-200 px-6 py-4 flex items-center gap-3">
+                    <Layers className="h-6 w-6 text-blue-600" />
+                    <h3 className="font-bold text-xl text-slate-800 tracking-tight">Detailed Cost Breakdown</h3>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="divide-y divide-slate-100 px-6 bg-white">
+                    {Object.entries(activeBreakdown).map(([category, pct]) => (
+                      <div key={category} className="flex justify-between items-center py-4">
+                        <span className="text-slate-600 font-medium">{category}</span>
+                        <span className="font-bold text-slate-900 text-lg">रु. {Math.round(baseHouseCost * pct).toLocaleString('en-IN')}</span>
+                      </div>
+                    ))}
 
-            <div className="grid md:grid-cols-2 gap-8 mt-8">
-              <div>
-                <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><HardHat className="h-5 w-5" /> Required Materials</h3>
-                <div className="space-y-3">
-                  {Object.entries(activeMaterials).map(([material, multiplier]) => (
-                    <div key={material} className="flex justify-between items-center py-2 border-b border-slate-100 border-dashed">
-                      <span className="text-slate-700 text-sm">{material}</span>
-                      <span className="font-bold text-slate-900">{Math.round(totalArea * multiplier).toLocaleString('en-IN')}</span>
+                    {/* Base Subtotal */}
+                    <div className="flex justify-between items-center py-5 bg-slate-50/50 -mx-6 px-6 border-t-2 border-slate-200">
+                      <span className="text-slate-800 font-bold uppercase tracking-wider text-sm">Base Structure Subtotal</span>
+                      <span className="font-black text-slate-900 text-xl">रु. {baseHouseCost.toLocaleString('en-IN')}</span>
                     </div>
-                  ))}
+
+                    {/* External Works Seamless Integration */}
+                    {includeExternal && (
+                      <>
+                        <div className="flex justify-between items-center py-4">
+                          <span className="text-slate-600 font-medium">Compound Wall & Main Gate</span>
+                          <span className="font-bold text-slate-900 text-lg">रु. {externalBreakdown.wall.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-4">
+                          <span className="text-slate-600 font-medium">Septic Tank & Soak Pit</span>
+                          <span className="font-bold text-slate-900 text-lg">रु. {externalBreakdown.septic.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-4">
+                          <span className="text-slate-600 font-medium">{ratePerSqft < 4200 ? 'Shallow Tube-Well (Motor)' : 'Deep Water Boring (>200ft)'}</span>
+                          <span className="font-bold text-slate-900 text-lg">रु. {externalBreakdown.boring.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-5 bg-emerald-50/50 -mx-6 px-6 border-t-2 border-emerald-100">
+                          <span className="text-emerald-800 font-bold uppercase tracking-wider text-sm">External Works Subtotal</span>
+                          <span className="font-black text-emerald-700 text-xl">रु. {externalCost.toLocaleString('en-IN')}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-8">
-                <div>
-                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><Building className="h-5 w-5" /> Cost Distribution</h3>
-                  <div className="space-y-3">
-                    {Object.entries(LABOR_MATERIAL_RATIO).map(([cat, pct]) => (
-                      <div key={cat} className="flex justify-between items-center">
-                        <span className="text-slate-700 text-sm">{cat} ({Math.round(pct * 100)}%)</span>
-                        <span className="font-bold text-slate-900">रु. {Math.round(totalCost * pct).toLocaleString('en-IN')}</span>
+              {/* RIGHT COLUMN: Materials & Timelines (5 cols) */}
+              <div className="lg:col-span-5 space-y-8">
+                {/* Materials */}
+                <div className="border-2 border-slate-200 rounded-2xl overflow-hidden">
+                  <div className="bg-slate-50 border-b-2 border-slate-200 px-6 py-4 flex items-center gap-3">
+                    <HardHat className="h-6 w-6 text-amber-600" />
+                    <h3 className="font-bold text-xl text-slate-800 tracking-tight">Required Materials</h3>
+                  </div>
+                  <div className="divide-y divide-slate-100 px-6 bg-white">
+                    {Object.entries(activeMaterials).map(([material, multiplier]) => (
+                      <div key={material} className="flex justify-between items-center py-3.5">
+                        <span className="text-slate-600 text-sm font-medium w-2/3 pr-4 leading-tight">{material}</span>
+                        <span className="font-bold text-slate-900 text-right w-1/3">{Math.round(totalArea * multiplier).toLocaleString('en-IN')}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="font-bold text-lg mb-4 flex items-center gap-2 border-b pb-2"><Clock className="h-5 w-5" /> Est. Timeline</h3>
-                  <div className="space-y-2">
+                {/* Timeline */}
+                <div className="border-2 border-slate-200 rounded-2xl overflow-hidden">
+                  <div className="bg-slate-50 border-b-2 border-slate-200 px-6 py-4 flex items-center gap-3">
+                    <Clock className="h-6 w-6 text-purple-600" />
+                    <h3 className="font-bold text-xl text-slate-800 tracking-tight">Estimated Timeline</h3>
+                  </div>
+                  <div className="divide-y divide-slate-100 px-6 bg-white">
                     {activeTimeline.map((item, i) => (
-                      <div key={i} className="flex justify-between items-center text-sm">
-                        <span className="text-slate-600">• {item.phase}</span>
-                        <span className="font-medium">{item.duration}</span>
+                      <div key={i} className="flex justify-between items-center py-3">
+                        <span className="text-slate-600 text-sm font-medium pr-4">{item.phase}</span>
+                        <span className="font-bold text-slate-900 text-sm text-right whitespace-nowrap">{item.duration}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* Labor vs Material Distribution */}
+                <div className="border-2 border-slate-200 rounded-2xl overflow-hidden">
+                  <div className="bg-slate-50 border-b-2 border-slate-200 px-6 py-4 flex items-center gap-3">
+                    <Building className="h-6 w-6 text-teal-600" />
+                    <h3 className="font-bold text-xl text-slate-800 tracking-tight">Cost Distribution</h3>
+                  </div>
+                  <div className="divide-y divide-slate-100 px-6 bg-white">
+                    {Object.entries(LABOR_MATERIAL_RATIO).map(([cat, pct]) => (
+                      <div key={cat} className="flex justify-between items-center py-3">
+                        <span className="text-slate-600 text-sm font-medium pr-4">{cat} ({Math.round(pct * 100)}%)</span>
+                        <span className="font-bold text-slate-900 text-sm text-right whitespace-nowrap">रु. {Math.round(totalCost * pct).toLocaleString('en-IN')}</span>
                       </div>
                     ))}
                   </div>
@@ -669,43 +754,47 @@ export default function Home() {
               </div>
             </div>
 
-            {/* DYNAMIC ENGINEERING GUIDELINES */}
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mt-6 print:bg-transparent print:border-slate-300">
-              <h3 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-                <ShieldAlert className="h-5 w-5" />
-                Structural Safety & Guidelines {structureType === 'rcc' ? '(Updated for NBC 105:2025)' : '(Prefab/Sandwich Panel)'}
-              </h3>
+            {/* Bottom Guidelines */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+              <div className="bg-slate-50 p-8 rounded-2xl border-2 border-slate-200 print:bg-transparent print:border-slate-300">
+                <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">
+                  <ShieldAlert className="h-6 w-6" />
+                  Structural Safety Guidelines
+                </h3>
+                {structureType === "rcc" ? (
+                  <ul className="text-sm text-slate-700 space-y-3">
+                    <li>• <strong>Seismic Compliance:</strong> Design forces must align with NBC 105:2025 updates, enforcing stricter displacement checks and soil pressure limits.</li>
+                    <li>• <strong>Minimum Column Size:</strong> Must not be less than 12&quot; x 12&quot; (300mm x 300mm) for residential buildings in active seismic zones.</li>
+                    <li>• <strong>Rebar Configuration:</strong> Minimum of 4-16mm Ø and 4-12mm Ø longitudinal bars. Fe500 or Fe550 grade steel highly recommended.</li>
+                    <li>• <strong>Cement Mix:</strong> Use M20 grade concrete (1:1.5:3 ratio) minimum for all structural RCC members.</li>
+                  </ul>
+                ) : (
+                  <ul className="text-sm text-slate-700 space-y-3">
+                    <li>• <strong>Steel Skeleton:</strong> MS Steel tubular sections must be treated with anti-rust red oxide or epoxy primer before panel installation.</li>
+                    <li>• <strong>Panel Specifications:</strong> Use EPS (Expanded Polystyrene) or PUF panels with a minimum thickness of 50mm for adequate thermal insulation in Nepal&apos;s climate.</li>
+                    <li>• <strong>Foundation Required:</strong> Despite being lightweight, RCC isolated footings and tie-beams are still required for seismic stability and to prevent wind-uplift.</li>
+                    <li>• <strong>Roofing:</strong> Ensure UPVC or Color-coated CGI sheets are installed with proper overlaps and J-hooks to prevent monsoon leakage.</li>
+                  </ul>
+                )}
+              </div>
 
-              {structureType === "rcc" ? (
-                <ul className="text-sm text-slate-700 space-y-2">
-                  <li>• <strong>Seismic Compliance:</strong> Design forces must align with NBC 105:2025 updates, enforcing stricter displacement checks and soil pressure limits.</li>
-                  <li>• <strong>Minimum Column Size:</strong> Must not be less than 12&quot; x 12&quot; (300mm x 300mm) for residential buildings in active seismic zones.</li>
-                  <li>• <strong>Rebar Configuration:</strong> Minimum of 4-16mm Ø and 4-12mm Ø longitudinal bars. Fe500 or Fe550 grade steel highly recommended.</li>
-                  <li>• <strong>Cement Mix:</strong> Use M20 grade concrete (1:1.5:3 ratio) minimum for all structural RCC members.</li>
+              <div className="bg-blue-50 p-8 rounded-2xl border-2 border-blue-100 print:bg-transparent print:border-slate-300">
+                <h3 className="font-bold text-blue-900 mb-4 flex items-center gap-2 text-lg print:text-slate-900">
+                  <ClipboardList className="h-6 w-6" />
+                  Municipality Requirements (नक्सा पास)
+                </h3>
+                <ul className="text-sm text-blue-800 space-y-3 print:text-slate-700">
+                  <li>• Ensure Land Ownership Document (Lalpurja) and Land Tax Receipt (Tiro) are updated.</li>
+                  <li>• Hire a registered firm for Architectural and Structural drawings. Ensure soil testing for structures above 2.5 stories.</li>
+                  <li>• Above estimates do not include furniture, compound walls, or municipality approval fees unless explicitly stated in external works.</li>
                 </ul>
-              ) : (
-                <ul className="text-sm text-slate-700 space-y-2">
-                  <li>• <strong>Steel Skeleton:</strong> MS Steel tubular sections must be treated with anti-rust red oxide or epoxy primer before panel installation.</li>
-                  <li>• <strong>Panel Specifications:</strong> Use EPS (Expanded Polystyrene) or PUF panels with a minimum thickness of 50mm for adequate thermal insulation in Nepal&apos;s climate.</li>
-                  <li>• <strong>Foundation Required:</strong> Despite being lightweight, RCC isolated footings and tie-beams are still required for seismic stability and to prevent wind-uplift.</li>
-                  <li>• <strong>Roofing:</strong> Ensure UPVC or Color-coated CGI sheets are installed with proper overlaps and J-hooks to prevent monsoon leakage.</li>
-                </ul>
-              )}
+              </div>
             </div>
 
-            <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 mt-6 print:bg-transparent print:border-slate-300">
-              <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2 print:text-slate-900"><ClipboardList className="h-5 w-5" /> Municipality Requirements (नक्सा पास)</h3>
-              <ul className="text-sm text-blue-800 space-y-2 print:text-slate-700">
-                <li>• Ensure Land Ownership Document (Lalpurja) and Land Tax Receipt (Tiro) are updated.</li>
-                <li>• Hire a registered firm for Architectural and Structural drawings. Ensure soil testing for structures above 2.5 stories.</li>
-                <li>• Above estimates do not include furniture, compound walls, or municipality approval fees.</li>
-              </ul>
-            </div>
-
-            <div className="text-center pt-6 border-t border-slate-200 text-xs text-slate-400 mt-8">
+            <div className="text-center pt-8 border-t-2 border-slate-200 text-xs text-slate-400 mt-12 pb-12">
               <p>Disclaimer: This is a preliminary Bill of Quantities (BOQ) generated based on current market rates in Nepal.</p>
               <p>Actual costs may vary based on exact site conditions, contractor negotiations, and material brand selections.</p>
-              <p className="mt-2 font-bold text-slate-500">Generated securely via zila.app</p>
+              <p className="mt-3 font-bold text-slate-500 uppercase tracking-widest">Generated securely via zila.app</p>
             </div>
 
           </div>
