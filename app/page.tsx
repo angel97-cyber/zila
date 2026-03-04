@@ -123,6 +123,64 @@ const PREFAB_TIMELINE = [
   { phase: "Flooring, Painting & Finishing", duration: "1 to 2 Weeks" },
 ];
 
+// === 3. LOAD-BEARING MASONRY ENGINEERING CONSTANTS ===
+const MASONRY_BREAKDOWN = {
+  "Foundation (Stone/Brick + RCC Plinth)": 0.20,
+  "Load-Bearing Walls (Brick/Stone)": 0.25,
+  "RCC Bands & Roof Slab": 0.15,
+  "Doors & Windows": 0.10,
+  "Plumbing & Sanitary": 0.08,
+  "Electrical Works": 0.07,
+  "Flooring & Finishing": 0.10,
+  "Contingency / Misc": 0.05,
+};
+
+const MASONRY_MATERIALS_PER_SQFT = {
+  "Cement (OPC & PPC bags)": 0.35, // High mortar use
+  "Sand & Aggregate (cu.ft)": 1.90,
+  "TMT Rebar (Only for Bands & Slab) (kg)": 1.50,
+  "Bricks (Thick Walls) (pcs)": 14.00, // Massive brick consumption
+  "Paint (liters)": 0.18,
+  "Tiles / Stone (sq.ft)": 1.10,
+};
+
+const MASONRY_TIMELINE = [
+  { phase: "Trench Foundation & Plinth", duration: "3 to 5 Weeks" },
+  { phase: "Wall Masonry & RCC Bands", duration: "6 to 8 Weeks" },
+  { phase: "Roof Slab Casting & Curing", duration: "4 Weeks" },
+  { phase: "Plumbing & Electrical Rough-ins", duration: "3 Weeks" },
+  { phase: "Plaster, Flooring & Finishing", duration: "6 to 8 Weeks" },
+];
+
+// === 4. LGSF (LIGHT GAUGE STEEL) ENGINEERING CONSTANTS ===
+const LGSF_BREAKDOWN = {
+  "Foundation (RCC/PCC)": 0.12,
+  "LGSF Steel Structure": 0.30,
+  "Cladding (Fiber Boards) & Insulation": 0.20,
+  "Doors & Windows": 0.10,
+  "Plumbing & Sanitary": 0.09,
+  "Electrical Works": 0.08,
+  "Flooring & Finishing": 0.06,
+  "Contingency / Misc": 0.05,
+};
+
+const LGSF_MATERIALS_PER_SQFT = {
+  "LGSF Steel (G550 Grade) (kg)": 1.80,
+  "Fiber Cement / Gypsum Boards (sq.ft)": 3.50, // Inner & Outer cladding
+  "Glass/Mineral Wool Insulation (sq.ft)": 1.20,
+  "Cement (Foundation only) (bags)": 0.15,
+  "Paint & Wall Putty (liters)": 0.15,
+  "Tiles / Flooring (sq.ft)": 1.05,
+};
+
+const LGSF_TIMELINE = [
+  { phase: "Foundation & Plinth", duration: "2 to 3 Weeks" },
+  { phase: "LGSF Frame Erection", duration: "1 to 2 Weeks" },
+  { phase: "Board Cladding & Insulation", duration: "2 to 3 Weeks" },
+  { phase: "MEP (Mechanical/Electrical/Plumbing)", duration: "1 to 2 Weeks" },
+  { phase: "Joint Taping, Painting & Flooring", duration: "3 to 4 Weeks" },
+];
+
 const PREFAB_MATERIALS_PER_SQFT = {
   "EPS/PUF Sandwich Panels (sq.ft)": 1.30,
   "MS Steel Tubes (Skeleton Frame) (kg)": 2.50,
@@ -169,15 +227,15 @@ export default function Home() {
 
   const totalArea = Math.round(safeFloors * areaInSqFt);
 
-  // Base Rate
+  // Base Rate (RCC Default)
   let ratePerSqft = RATES[country][district] ? RATES[country][district][quality] : RATES[country]['Kathmandu (Core City)'][quality];
 
-  // Prefab Discount
-  if (structureType === "prefab") {
-    ratePerSqft = Math.round(ratePerSqft * 0.68);
-  }
+  // STRUCTURE TYPE DISCOUNTS & MULTIPLIERS (Nepal 2026 Economics)
+  if (structureType === "prefab") ratePerSqft = Math.round(ratePerSqft * 0.68);
+  if (structureType === "masonry") ratePerSqft = Math.round(ratePerSqft * 0.85); // 15% cheaper (less steel)
+  if (structureType === "lgsf") ratePerSqft = Math.round(ratePerSqft * 0.90); // 10% cheaper (fast labor, expensive materials)
 
-  // Base House Cost (Just the building)
+  // Base House Cost
   const baseHouseCost = totalArea * ratePerSqft;
 
   // External Works (Compound, Gate, Septic, Boring)
@@ -185,24 +243,25 @@ export default function Home() {
   let externalBreakdown = { boring: 0, septic: 0, wall: 0 };
 
   if (includeExternal) {
-    // If the base rate is lower, it's usually Terai/Lowlands (Shallow boring, cheaper bricks)
     if (ratePerSqft < 4200) {
-      externalBreakdown = { boring: 60000, septic: 150000, wall: 290000 }; // Terai Math
+      externalBreakdown = { boring: 60000, septic: 150000, wall: 290000 };
       externalCost = 500000;
     } else {
-      // Valley/Hills (Deep boring, expensive transport)
-      externalBreakdown = { boring: 220000, septic: 180000, wall: 350000 }; // Valley/Hills Math
+      externalBreakdown = { boring: 220000, septic: 180000, wall: 350000 };
       externalCost = 750000;
     }
   }
 
-  // Final Total
   const totalCost = baseHouseCost + externalCost;
 
-  const activeMaterials = structureType === "prefab" ? PREFAB_MATERIALS_PER_SQFT : MATERIALS_PER_SQFT;
-  // NEW DYNAMIC VARIABLES
-  const activeBreakdown = structureType === "prefab" ? PREFAB_BREAKDOWN : BREAKDOWN;
-  const activeTimeline = structureType === "prefab" ? PREFAB_TIMELINE : TIMELINE;
+  // DYNAMIC MATERIAL & TIMELINE ASSIGNMENT
+  let activeMaterials: Record<string, number> = MATERIALS_PER_SQFT;
+  let activeBreakdown: Record<string, number> = BREAKDOWN;
+  let activeTimeline: Array<{ phase: string, duration: string }> = TIMELINE;
+
+  if (structureType === "prefab") { activeMaterials = PREFAB_MATERIALS_PER_SQFT; activeBreakdown = PREFAB_BREAKDOWN; activeTimeline = PREFAB_TIMELINE; }
+  if (structureType === "masonry") { activeMaterials = MASONRY_MATERIALS_PER_SQFT; activeBreakdown = MASONRY_BREAKDOWN; activeTimeline = MASONRY_TIMELINE; }
+  if (structureType === "lgsf") { activeMaterials = LGSF_MATERIALS_PER_SQFT; activeBreakdown = LGSF_BREAKDOWN; activeTimeline = LGSF_TIMELINE; }
 
   // --- LOCAL STORAGE (SAVE STATE) ---
   useEffect(() => {
@@ -353,6 +412,14 @@ export default function Home() {
                     <button onClick={() => setStructureType("rcc")} className={`p-4 rounded-xl border text-center sm:text-left transition-all ${structureType === "rcc" ? 'border-blue-900 bg-blue-50 ring-1 ring-blue-900 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-blue-300'}`}>
                       <div className={`font-bold text-lg ${structureType === "rcc" ? "text-blue-900" : "text-slate-700"}`}>Traditional RCC Pillar</div>
                       <div className="text-sm mt-1 opacity-80">(पिलर वाला पक्की घर)</div>
+                    </button>
+                    <button onClick={() => setStructureType("masonry")} className={`p-4 rounded-xl border text-center sm:text-left transition-all ${structureType === "masonry" ? 'border-amber-600 bg-amber-50 ring-1 ring-amber-600 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-amber-300'}`}>
+                      <div className={`font-bold text-lg ${structureType === "masonry" ? "text-amber-800" : "text-slate-700"}`}>Load-Bearing Masonry</div>
+                      <div className="text-sm mt-1 opacity-80">(विना पिलरको घर)</div>
+                    </button>
+                    <button onClick={() => setStructureType("lgsf")} className={`p-4 rounded-xl border text-center sm:text-left transition-all ${structureType === "lgsf" ? 'border-purple-600 bg-purple-50 ring-1 ring-purple-600 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-purple-300'}`}>
+                      <div className={`font-bold text-lg ${structureType === "lgsf" ? "text-purple-800" : "text-slate-700"}`}>LGSF (Light Gauge Steel)</div>
+                      <div className="text-sm mt-1 opacity-80">(लाइट गेज स्टिल फ्रेम)</div>
                     </button>
                     <button onClick={() => setStructureType("prefab")} className={`p-4 rounded-xl border text-center sm:text-left transition-all ${structureType === "prefab" ? 'border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600 shadow-sm' : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-300'}`}>
                       <div className={`font-bold text-lg ${structureType === "prefab" ? "text-emerald-700" : "text-slate-700"}`}>Prefab / Sandwich Panel</div>
@@ -645,7 +712,7 @@ export default function Home() {
               <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6 w-full mb-8 md:mb-0 md:border-r border-slate-700 print:border-slate-300 md:pr-8">
                 <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">Location</p><p className="font-bold text-lg leading-tight">{district.split('(')[0].trim()}</p></div>
                 <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">Total Area</p><p className="font-bold text-lg leading-tight">{totalArea.toLocaleString()} sq.ft</p></div>
-                <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">Structure</p><p className="font-bold text-lg leading-tight">{safeFloors} Flr ({structureType === 'rcc' ? 'RCC' : 'Prefab'})</p></div>
+                <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">Structure</p><p className="font-bold text-lg leading-tight">{safeFloors} Flr ({structureType.toUpperCase()})</p></div>
                 <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">Finish Quality</p><p className="font-bold text-lg leading-tight capitalize">{quality}</p></div>
               </div>
               <div className="md:pl-8 text-left md:text-right w-full md:w-auto">
@@ -756,24 +823,43 @@ export default function Home() {
 
             {/* Bottom Guidelines */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+
               <div className="bg-slate-50 p-8 rounded-2xl border-2 border-slate-200 print:bg-transparent print:border-slate-300">
                 <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-lg">
                   <ShieldAlert className="h-6 w-6" />
-                  Structural Safety Guidelines
+                  Structural Safety Guidelines {structureType === 'rcc' ? '(NBC 105:2025)' : structureType === 'masonry' ? '(NBC 202:2015)' : '(Modern Alternative)'}
                 </h3>
-                {structureType === "rcc" ? (
+
+                {structureType === "rcc" && (
                   <ul className="text-sm text-slate-700 space-y-3">
                     <li>• <strong>Seismic Compliance:</strong> Design forces must align with NBC 105:2025 updates, enforcing stricter displacement checks and soil pressure limits.</li>
                     <li>• <strong>Minimum Column Size:</strong> Must not be less than 12&quot; x 12&quot; (300mm x 300mm) for residential buildings in active seismic zones.</li>
                     <li>• <strong>Rebar Configuration:</strong> Minimum of 4-16mm Ø and 4-12mm Ø longitudinal bars. Fe500 or Fe550 grade steel highly recommended.</li>
                     <li>• <strong>Cement Mix:</strong> Use M20 grade concrete (1:1.5:3 ratio) minimum for all structural RCC members.</li>
                   </ul>
-                ) : (
+                )}
+                {structureType === "prefab" && (
                   <ul className="text-sm text-slate-700 space-y-3">
                     <li>• <strong>Steel Skeleton:</strong> MS Steel tubular sections must be treated with anti-rust red oxide or epoxy primer before panel installation.</li>
-                    <li>• <strong>Panel Specifications:</strong> Use EPS (Expanded Polystyrene) or PUF panels with a minimum thickness of 50mm for adequate thermal insulation in Nepal&apos;s climate.</li>
-                    <li>• <strong>Foundation Required:</strong> Despite being lightweight, RCC isolated footings and tie-beams are still required for seismic stability and to prevent wind-uplift.</li>
+                    <li>• <strong>Panel Specifications:</strong> Use EPS or PUF panels with a minimum thickness of 50mm for adequate thermal insulation in Nepal&apos;s climate.</li>
+                    <li>• <strong>Foundation Required:</strong> RCC isolated footings and tie-beams are strictly required for seismic stability and wind-uplift resistance.</li>
                     <li>• <strong>Roofing:</strong> Ensure UPVC or Color-coated CGI sheets are installed with proper overlaps and J-hooks to prevent monsoon leakage.</li>
+                  </ul>
+                )}
+                {structureType === "masonry" && (
+                  <ul className="text-sm text-slate-700 space-y-3">
+                    <li>• <strong>Seismic Compliance:</strong> Must strictly adhere to NBC 202:2015. Continuous RCC bands at plinth, sill, lintel, and roof levels are mandatory.</li>
+                    <li>• <strong>Wall Thickness:</strong> Exterior load-bearing walls must be a minimum of 9 inches (1-story) or 14 inches (2-story) thick.</li>
+                    <li>• <strong>Height Restriction:</strong> Load-bearing unreinforced masonry is generally not recommended beyond 2 stories in active seismic zones.</li>
+                    <li>• <strong>Material Quality:</strong> Use first-class machine-made bricks (min 3.5 MPa). Mortar mix ratio should not exceed 1:4 (Cement:Sand).</li>
+                  </ul>
+                )}
+                {structureType === "lgsf" && (
+                  <ul className="text-sm text-slate-700 space-y-3">
+                    <li>• <strong>Structural Steel:</strong> Use High-Tensile Zinc-Alum coated steel (G550 grade, AZ150 coating) for maximum corrosion resistance and structural integrity.</li>
+                    <li>• <strong>Wind & Seismic Load:</strong> Anchor bolts securing the base track to the RCC plinth must be strictly verified against wind uplift and seismic shear.</li>
+                    <li>• <strong>Insulation:</strong> Cavities must be filled with non-combustible Glass/Rock Wool (min 50mm thickness, 48kg/m3 density) for fire rating and acoustics.</li>
+                    <li>• <strong>Cladding:</strong> Exterior cladding must use heavy-duty Fiber Cement Boards (min 12mm) treated with weather-resistant primer.</li>
                   </ul>
                 )}
               </div>
@@ -789,6 +875,7 @@ export default function Home() {
                   <li>• Above estimates do not include furniture, compound walls, or municipality approval fees unless explicitly stated in external works.</li>
                 </ul>
               </div>
+
             </div>
 
             <div className="text-center pt-8 border-t-2 border-slate-200 text-xs text-slate-400 mt-12 pb-12">
