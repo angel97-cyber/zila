@@ -136,10 +136,10 @@ export default function DonatePage() {
           </div>
           <div>
             <p className="text-xs font-semibold tracking-widest text-white/20 uppercase mb-4">Journey</p>
-            <TimelineItem year="2022" event="Started Civil Engineering career" detail="Joined hydropower sector, worked on penstock design and anchor block analysis." active={false} />
+            <TimelineItem year="2020" event="Started Civil Engineering career" detail="Joined hydropower sector, worked on penstock design and anchor block analysis." active={false} />
             <TimelineItem year="2023" event="Witnessed contractor fraud firsthand" detail="Family received wildly inflated construction quotes. Decided to build a solution." active={false} />
-            <TimelineItem year="2024" event="Built ZILA from scratch" detail="Learned Next.js, built a 50-district cost database, launched first version." active={true} />
-            <TimelineItem year="2025 →" event="Pursuing Masters in Australia" detail="Continuing to build ZILA remotely while advancing structural engineering research." active={false} />
+            <TimelineItem year="2025" event="Built ZILA from scratch" detail="Learned Next.js, built a 50-district cost database, launched first version." active={true} />
+            <TimelineItem year="2026 →" event="Pursuing Masters in Australia" detail="Continuing to build ZILA remotely while advancing structural engineering research." active={false} />
           </div>
         </div>
 
