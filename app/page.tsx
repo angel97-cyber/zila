@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import {
   MapPin, Building2, Layers, Maximize2, Sparkles, ChevronDown, ArrowRight, Zap,
