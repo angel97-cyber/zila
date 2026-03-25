@@ -5,7 +5,7 @@ import Image from "next/image";
 import {
   MapPin, Building2, Layers, Maximize2, Sparkles, ChevronDown, ArrowRight, Zap,
   ShieldCheck, Lock, User, Phone, FileText, CheckCircle, Info, Building, Star, 
-  ChevronRight, Download, ClipboardList, ShieldAlert, Sun, Moon, Languages
+  ChevronRight, Download, ClipboardList, ShieldAlert, Sun, Moon, Languages, Cpu
 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
@@ -398,6 +398,54 @@ export default function Home() {
               ))}
             </div>
           </div>
+          {/* --- METHODOLOGY SECTION START --- */}
+            <div className="mt-32 mb-10 border-t border-white/10 pt-20">
+              <div className="text-center mb-16">
+                <p className="text-xs font-semibold tracking-widest text-emerald-500 uppercase mb-3">{tx("The Engineering Engine", "इन्जिनियरिङ इन्जिन")}</p>
+                <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`} style={{ fontFamily: "'Syne', sans-serif" }}>
+                  {tx("How ZILA calculates with Bank-Grade precision.", "ZILA ले कसरी बैंक-ग्रेड शुद्धताका साथ हिसाब गर्छ।")}
+                </h2>
+                <p className={`text-sm max-w-2xl mx-auto leading-relaxed ${isDark ? 'text-white/40' : 'text-slate-600'}`}>
+                  {tx("We don't use generic square-foot estimates. ZILA runs your inputs through a proprietary structural algorithm built on real Nepalese market data and national building codes.", "हामी सामान्य वर्ग-फुट अनुमानहरू प्रयोग गर्दैनौं। ZILA ले वास्तविक नेपाली बजार डाटा र राष्ट्रिय भवन संहितामा आधारित संरचनात्मक एल्गोरिदम प्रयोग गर्दछ।")}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Step 1 */}
+                <div className={`p-8 rounded-2xl border transition-all hover:-translate-y-1 ${isDark ? 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]' : 'bg-white border-slate-200 shadow-sm'}`}>
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-6">
+                    <MapPin size={20} className="text-blue-500" />
+                  </div>
+                  <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>{tx("1. Hyper-Local Matrix", "१. अति-स्थानीय म्याट्रिक्स")}</h3>
+                  <p className={`text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-slate-600'}`}>
+                    {tx("Cement in Humla costs more than in Chitwan. ZILA maps freight, labor, and material rates across 50 districts using a live 2082/83 B.S. pricing matrix.", "हुम्लामा सिमेन्टको मूल्य चितवनभन्दा बढी पर्छ। ZILA ले ५० जिल्लाहरूमा ढुवानी, श्रम र सामग्रीको दरहरू म्याप गर्दछ।")}
+                  </p>
+                </div>
+
+                {/* Step 2 */}
+                <div className={`p-8 rounded-2xl border transition-all hover:-translate-y-1 ${isDark ? 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]' : 'bg-white border-slate-200 shadow-sm'}`}>
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6">
+                    <Cpu size={20} className="text-emerald-500" />
+                  </div>
+                  <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>{tx("2. Structural Algorithms", "२. संरचनात्मक एल्गोरिदम")}</h3>
+                  <p className={`text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-slate-600'}`}>
+                    {tx("The engine dynamically calculates rebar tonnage, concrete volume, and labor distribution strictly adhering to NBC 105:2020 (AMD 2025) seismic safety guidelines.", "इन्जिनले NBC 105:2020 भूकम्प सुरक्षा दिशानिर्देशहरूको कडाईका साथ पालना गर्दै डण्डी, सिमेन्ट र श्रमको हिसाब गर्छ।")}
+                  </p>
+                </div>
+
+                {/* Step 3 */}
+                <div className={`p-8 rounded-2xl border transition-all hover:-translate-y-1 ${isDark ? 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04]' : 'bg-white border-slate-200 shadow-sm'}`}>
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-6">
+                    <ShieldCheck size={20} className="text-purple-500" />
+                  </div>
+                  <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>{tx("3. Bank-Grade Export", "३. बैंक-ग्रेड रिपोर्ट")}</h3>
+                  <p className={`text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-slate-600'}`}>
+                    {tx("Results are formatted into an E-Verified, tranches-based Bill of Quantities (BOQ) ready for submission to 'A' Class commercial banks for loan processing.", "नतिजाहरू 'A' वर्गका वाणिज्य बैंकहरूमा ऋण प्रक्रियाको लागि पेश गर्न तयार E-प्रमाणित BOQ मा ढाँचाबद्ध गरिन्छ।")}
+                  </p>
+                </div>
+              </div>
+            </div>
+            {/* --- METHODOLOGY SECTION END --- */}
         </section>
       )}
 
