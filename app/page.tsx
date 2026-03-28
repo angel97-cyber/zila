@@ -179,12 +179,9 @@ export default function Home() {
   const [isPremium, setIsPremium] = useState(false);
   const [estimateId, setEstimateId] = useState<string | null>(null);
 
-  // Theme & Language State
-  const [isDark, setIsDark] = useState(true);
+  // Theme & Language State — Light mode is default
+  const [isDark, setIsDark] = useState(false);
   const [lang, setLang] = useState<"en" | "ne">("en");
-  
-
-  
 
   const tx = (en: string, ne: string) => lang === "en" ? en : ne;
 
@@ -272,8 +269,6 @@ export default function Home() {
     await supabase.from('estimates').update({ payment_ref: paymentRef }).eq('id', estimateId);
   };
 
-  
-
   return (
     <>
       {!isCalculated && (
@@ -311,9 +306,9 @@ export default function Home() {
                 <span className="text-xs text-emerald-500 font-medium">{tx("50 Districts · Live 2026 Data · Engineer-Verified", "५० जिल्लाहरू · २०२६ को डाटा · इन्जिनियर-प्रमाणित")}</span>
               </div>
               <h1 style={{ fontFamily: "'Syne', sans-serif" }} className={`text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[0.95] tracking-tight mb-5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                {tx("Know the exact cost", "सही लागत थाहा पाउनुहोस्")}<br /><span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(135deg, #10b981, #34d399, #a7f3d0)" }}>{tx("before you build.", "निर्माण गर्नु अघि।")}</span>
+                {tx("Know your real cost", "ठेकेदारलाई पैसा दिनु")}<br /><span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(135deg, #10b981, #34d399, #a7f3d0)" }}>{tx("before you pour money.", "अघि सही लागत थाहा पाउनुहोस्।")}</span>
               </h1>
-              <p className={`text-lg max-w-xl font-light leading-relaxed ${isDark ? 'text-white/40' : 'text-slate-600'}`}>{tx("Nepal's most accurate construction cost estimator. Trusted by thousands of homeowners across all 77 districts.", "नेपालको सबैभन्दा भरपर्दो निर्माण लागत अनुमानक। ७७ वटै जिल्लाका हजारौं घरधनीहरुद्वारा विश्वस्त।")}</p>
+              <p className={`text-lg max-w-xl font-light leading-relaxed ${isDark ? 'text-white/40' : 'text-slate-600'}`}>{tx("Nepal's most detailed preliminary construction cost estimator. Get a realistic picture before you commit your life savings to a contractor.", "नेपालको सबैभन्दा विस्तृत प्रारम्भिक निर्माण लागत अनुमानक। ठेकेदारलाई जीवनभरको बचत दिनुअघि वास्तविक लागत बुझ्नुहोस्।")}</p>
             </div>
 
             <div className={`rounded-2xl border p-8 shadow-2xl transition-colors ${isDark ? 'border-white/[0.07] bg-white/[0.025] backdrop-blur-xl shadow-black/40' : 'border-slate-200 bg-white shadow-slate-200/50'}`}>
@@ -387,13 +382,13 @@ export default function Home() {
 
               <button type="button" onClick={handleCalculateClick} disabled={!floors || !area || !quality} className={`group w-full flex items-center justify-center gap-3 py-4 px-8 rounded-xl font-bold text-base transition-all duration-300 relative overflow-hidden ${(!floors || !area || !quality) ? (isDark ? "bg-white/5 text-white/20 cursor-not-allowed border border-white/5" : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200") : "text-white shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5"}`} style={floors && area && quality ? { background: "linear-gradient(135deg, #059669, #10b981, #34d399)" } : {}}>
                 <Building2 size={18} />
-                {tx("Calculate Total Cost", "कुल लागत हिसाब गर्नुहोस्")}
+                {tx("Calculate Preliminary Cost", "प्रारम्भिक लागत हिसाब गर्नुहोस्")}
                 <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
               </button>
             </div>
 
             <div className="flex items-center justify-center gap-8 mt-8 flex-wrap">
-              {[tx("NBC 105:2025 Compliant", "NBC १०५:२०२५ अनुसार"), tx("Bank-Grade Estimates", "बैंक-ग्रेड अनुमान"), tx("Engineer Verified", "इन्जिनियर प्रमाणित")].map((badge) => (
+              {[tx("NBC 105:2025 Compliant", "NBC १०५:२०२५ अनुसार"), tx("Preliminary BOQ", "प्रारम्भिक BOQ"), tx("Engineer Verified", "इन्जिनियर प्रमाणित")].map((badge) => (
                 <div key={badge} className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /><span className={`text-xs font-medium ${isDark ? 'text-white/30' : 'text-slate-400'}`}>{badge}</span></div>
               ))}
             </div>
@@ -403,10 +398,10 @@ export default function Home() {
               <div className="text-center mb-16">
                 <p className="text-xs font-semibold tracking-widest text-emerald-500 uppercase mb-3">{tx("The Engineering Engine", "इन्जिनियरिङ इन्जिन")}</p>
                 <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`} style={{ fontFamily: "'Syne', sans-serif" }}>
-                  {tx("How ZILA calculates with Bank-Grade precision.", "ZILA ले कसरी बैंक-ग्रेड शुद्धताका साथ हिसाब गर्छ।")}
+                  {tx("How ZILA calculates your preliminary construction cost.", "ZILA ले कसरी तपाईंको प्रारम्भिक निर्माण लागत हिसाब गर्छ।")}
                 </h2>
                 <p className={`text-sm max-w-2xl mx-auto leading-relaxed ${isDark ? 'text-white/40' : 'text-slate-600'}`}>
-                  {tx("We don't use generic square-foot estimates. ZILA runs your inputs through a proprietary structural algorithm built on real Nepalese market data and national building codes.", "हामी सामान्य वर्ग-फुट अनुमानहरू प्रयोग गर्दैनौं। ZILA ले वास्तविक नेपाली बजार डाटा र राष्ट्रिय भवन संहितामा आधारित संरचनात्मक एल्गोरिदम प्रयोग गर्दछ।")}
+                  {tx("We don't use guesswork. ZILA runs your inputs through a structural algorithm built on real Nepalese market data and national building codes — so you walk into every contractor meeting already knowing the real numbers.", "हामी अनुमान प्रयोग गर्दैनौं। ZILA ले वास्तविक नेपाली बजार डाटा र राष्ट्रिय भवन संहितामा आधारित संरचनात्मक एल्गोरिदम प्रयोग गर्दछ — ताकि तपाईं ठेकेदारसँग भेट्नु अघि नै सही लागत थाहा पाउनुहोस्।")}
                 </p>
               </div>
 
@@ -416,7 +411,7 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-6">
                     <MapPin size={20} className="text-blue-500" />
                   </div>
-                  <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>{tx("1. Hyper-Local Matrix", "१. अति-स्थानीय म्याट्रिक्स")}</h3>
+                  <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>{tx("1. Hyper-Local Pricing", "१. अति-स्थानीय मूल्य निर्धारण")}</h3>
                   <p className={`text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-slate-600'}`}>
                     {tx("Cement in Humla costs more than in Chitwan. ZILA maps freight, labor, and material rates across 50 districts using a live 2082/83 B.S. pricing matrix.", "हुम्लामा सिमेन्टको मूल्य चितवनभन्दा बढी पर्छ। ZILA ले ५० जिल्लाहरूमा ढुवानी, श्रम र सामग्रीको दरहरू म्याप गर्दछ।")}
                   </p>
@@ -438,9 +433,9 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-6">
                     <ShieldCheck size={20} className="text-purple-500" />
                   </div>
-                  <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>{tx("3. Bank-Grade Export", "३. बैंक-ग्रेड रिपोर्ट")}</h3>
+                  <h3 className={`text-lg font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>{tx("3. Preliminary BOQ Report", "३. प्रारम्भिक BOQ रिपोर्ट")}</h3>
                   <p className={`text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-slate-600'}`}>
-                    {tx("Results are formatted into an E-Verified, tranches-based Bill of Quantities (BOQ) ready for submission to 'A' Class commercial banks for loan processing.", "नतिजाहरू 'A' वर्गका वाणिज्य बैंकहरूमा ऋण प्रक्रियाको लागि पेश गर्न तयार E-प्रमाणित BOQ मा ढाँचाबद्ध गरिन्छ।")}
+                    {tx("Results are formatted into a detailed, phase-wise Preliminary Bill of Quantities — so you know exactly what materials you need and what each stage costs before meeting a single contractor.", "नतिजाहरू विस्तृत चरण-वार प्रारम्भिक परिमाणको बिलमा ढाँचाबद्ध गरिन्छ — ताकि कुनै पनि ठेकेदारसँग भेट्नु अघि नै तपाईंलाई थाहा होस् कुन सामग्री चाहिन्छ र प्रत्येक चरणमा कति खर्च लाग्छ।")}
                   </p>
                 </div>
               </div>
@@ -462,7 +457,7 @@ export default function Home() {
             </div>
 
             <div className="text-center mb-12">
-              <p className="text-xs font-semibold tracking-widest text-emerald-500 uppercase mb-4">{tx("Estimated Total Cost", "अनुमानित कुल लागत")}</p>
+              <p className="text-xs font-semibold tracking-widest text-emerald-500 uppercase mb-4">{tx("Preliminary Cost Estimate", "प्रारम्भिक लागत अनुमान")}</p>
               <div className="relative inline-block mb-4">
                 <h2 className={`text-5xl sm:text-7xl md:text-8xl font-extrabold leading-none tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`} style={{ fontFamily: "'Syne', sans-serif" }}>
                   {fmt(totalCost)}
@@ -508,7 +503,7 @@ export default function Home() {
 
                 <div className="mt-6 flex items-center gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/15">
                   <Info size={14} className="text-blue-500 shrink-0" />
-                  <p className={`text-xs leading-relaxed ${isDark ? 'text-white/40' : 'text-slate-500'}`}>{tx("Costs are based on live market rates for", "लागतहरू बजारको प्रत्यक्ष दरहरूमा आधारित छन्")} <strong className={isDark ? 'text-white/60' : 'text-slate-700'}>{district.split('(')[0]}</strong>. {tx("Final quotes may vary ±5% based on specific site conditions.", "साइटको अवस्थाको आधारमा अन्तिम लागत ±५% ले फरक हुन सक्छ।")}</p>
+                  <p className={`text-xs leading-relaxed ${isDark ? 'text-white/40' : 'text-slate-500'}`}>{tx("This is a preliminary estimate based on current market rates for", "यो एक प्रारम्भिक अनुमान हो, यसको आधार बजारको प्रत्यक्ष दरहरू हुन्")} <strong className={isDark ? 'text-white/60' : 'text-slate-700'}>{district.split('(')[0]}</strong>. {tx("Actual costs may vary ±10–15% based on site conditions, contractor, and timing. Use this to negotiate — not as a final quote.", "साइटको अवस्था, ठेकेदार र समयको आधारमा वास्तविक लागत ±१०–१५% ले फरक हुन सक्छ। यसलाई वार्तालापको आधारको रूपमा प्रयोग गर्नुहोस् — अन्तिम कोटेशनको रूपमा होइन।")}</p>
                 </div>
               </div>
 
@@ -523,14 +518,14 @@ export default function Home() {
                       <FileText size={16} className="text-emerald-500" />
                     </div>
                     <div>
-                      <h3 className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>{tx("Premium BOQ Report", "प्रिमियम BOQ रिपोर्ट")}</h3>
-                      <p className={`text-xs ${isDark ? 'text-white/30' : 'text-slate-500'}`}>{tx("Downloadable Engineering Document", "डाउनलोड गर्न मिल्ने इन्जिनियरिङ कागजात")}</p>
+                      <h3 className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>{tx("Detailed Preliminary BOQ", "विस्तृत प्रारम्भिक BOQ")}</h3>
+                      <p className={`text-xs ${isDark ? 'text-white/30' : 'text-slate-500'}`}>{tx("Downloadable Engineering Report", "डाउनलोड गर्न मिल्ने इन्जिनियरिङ रिपोर्ट")}</p>
                     </div>
                   </div>
 
                   {checkoutStep === 0 && !isVerifying && (
                     <div className="space-y-3 mb-5">
-                      {[tx("Full Material Quantities (Cement, Steel, etc.)", "पूर्ण सामग्रीको मात्रा (सिमेन्ट, डण्डी, आदि)"), tx("Labor vs Material Distribution", "श्रम र सामग्रीको विभाजन"), tx("Bank-Grade PDF Format", "बैंक-ग्रेड PDF ढाँचा"), tx("NBC Safety & Municipality Guidelines", "NBC सुरक्षा र नगरपालिकाको मापदण्ड")].map((feat) => (
+                      {[tx("Full Material Quantities (Cement, Steel, etc.)", "पूर्ण सामग्रीको मात्रा (सिमेन्ट, डण्डी, आदि)"), tx("Labor vs Material Distribution", "श्रम र सामग्रीको विभाजन"), tx("Phase-wise Preliminary BOQ", "चरण-वार प्रारम्भिक BOQ"), tx("NBC Safety & Municipality Guidelines", "NBC सुरक्षा र नगरपालिकाको मापदण्ड")].map((feat) => (
                         <div key={feat} className="flex items-center gap-2.5"><CheckCircle size={13} className="text-emerald-500 shrink-0" /><span className={`text-xs ${isDark ? 'text-white/60' : 'text-slate-600'}`}>{feat}</span></div>
                       ))}
                       <div className={`flex items-center justify-between pt-4 border-t mt-4 ${isDark ? 'border-white/6' : 'border-slate-100'}`}>
@@ -538,7 +533,7 @@ export default function Home() {
                         <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 font-medium border border-emerald-500/20">60% off</span>
                       </div>
                       <button onClick={() => setCheckoutStep(1)} className="w-full py-3.5 mt-2 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-emerald-500/20 hover:-translate-y-0.5 transition-all duration-200" style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}>
-                        {tx("Get My Report", "मेरो रिपोर्ट प्राप्त गर्नुहोस्")} <ChevronRight size={16} />
+                        {tx("Get My Full Report", "मेरो पूर्ण रिपोर्ट प्राप्त गर्नुहोस्")} <ChevronRight size={16} />
                       </button>
                     </div>
                   )}
@@ -591,7 +586,7 @@ export default function Home() {
 
                   <div className={`mt-5 pt-4 border-t flex items-center justify-center gap-4 ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
                     <div className="flex items-center gap-1.5"><Lock size={10} className={isDark ? "text-white/20" : "text-slate-300"} /><span className={`text-[10px] ${isDark ? "text-white/20" : "text-slate-400"}`}>Secure</span></div>
-                    <div className="flex items-center gap-1.5"><Star size={10} className={isDark ? "text-white/20" : "text-slate-300"} /><span className={`text-[10px] ${isDark ? "text-white/20" : "text-slate-400"}`}>2,000+ Verified</span></div>
+                    <div className="flex items-center gap-1.5"><Star size={10} className={isDark ? "text-white/20" : "text-slate-300"} /><span className={`text-[10px] ${isDark ? "text-white/20" : "text-slate-400"}`}>2,000+ Reports Generated</span></div>
                   </div>
                 </div>
               </div>
@@ -621,7 +616,7 @@ export default function Home() {
           <div className="print:hidden flex flex-col md:flex-row justify-between items-center gap-4 m-8 mb-4 bg-emerald-50 p-5 rounded-2xl border border-emerald-200">
             <div>
               <h2 className="text-emerald-800 font-bold text-lg flex items-center gap-2"><CheckCircle className="h-5 w-5"/> {tx("Payment Verified!", "भुक्तानी प्रमाणित भयो!")}</h2>
-              <p className="text-emerald-600 text-sm">{tx("Your official Bank-Grade BOQ is ready.", "तपाईंको आधिकारिक बैंक-ग्रेड BOQ तयार छ।")}</p>
+              <p className="text-emerald-600 text-sm">{tx("Your detailed Preliminary BOQ Report is ready to download.", "तपाईंको विस्तृत प्रारम्भिक BOQ रिपोर्ट डाउनलोडको लागि तयार छ।")}</p>
             </div>
             <div className="flex gap-3 w-full md:w-auto">
               <button onClick={() => { localStorage.removeItem('zila_estimate_id'); window.location.reload(); }} className="flex-1 md:flex-none bg-white border-2 border-slate-200 text-slate-700 font-bold px-6 py-3 rounded-lg hover:bg-slate-50 transition-all shadow-sm">
@@ -638,7 +633,7 @@ export default function Home() {
           <header className="px-8 pt-5 pb-4 print:px-2 print:pt-3 print:pb-2">
             <div className="text-center mb-3">
               <span className="inline-block px-4 py-1 text-[8px] font-bold uppercase tracking-[0.25em] text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-sm">
-                {tx("Confidential — For Banking & Financial Assessment Purpose Only", "गोप्य — बैंकिङ र वित्तीय मूल्याङ्कन उद्देश्यको लागि मात्र")}
+                {tx("Preliminary Estimate — For Planning & Reference Purposes Only", "प्रारम्भिक अनुमान — योजना र सन्दर्भ उद्देश्यको लागि मात्र")}
               </span>
             </div>
 
@@ -650,7 +645,7 @@ export default function Home() {
                   </div>
                   <span className="text-[26px] font-black text-slate-900 tracking-tight leading-none" style={{ fontFamily: "'Syne', sans-serif" }}>ZILA</span>
                 </div>
-                <h1 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.15em] mt-1">{tx("Official Bill of Quantities & Cost Estimate", "आधिकारिक परिमाणको बिल र लागत अनुमान")}</h1>
+                <h1 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.15em] mt-1">{tx("Preliminary Bill of Quantities & Cost Estimate", "प्रारम्भिक परिमाणको बिल र लागत अनुमान")}</h1>
                 <p className="text-[9px] text-slate-400 mt-0.5 tracking-wide font-mono">Ref: ZILA/BOQ/{new Date().getFullYear()}/{estimateId?.split('-')[0].toUpperCase()}</p>
               </div>
 
@@ -690,7 +685,7 @@ export default function Home() {
                 <div><p className="text-slate-400 text-xs uppercase tracking-wider mb-1 font-semibold">{tx("Finish Quality", "फिनिसिङ गुणस्तर")}</p><p className="font-bold text-lg leading-tight capitalize">{tx(quality, quality === "premium" ? "प्रिमियम" : quality === "standard" ? "स्ट्यान्डर्ड" : quality === "economy" ? "इकोनोमी" : "स्ट्रक्चर मात्र")}</p></div>
               </div>
               <div className="md:pl-8 text-left md:text-right w-full md:w-auto">
-                <p className="text-slate-400 text-xs uppercase tracking-wider mb-2 font-semibold">{tx("Estimated Grand Total", "अनुमानित कुल लागत")}</p>
+                <p className="text-slate-400 text-xs uppercase tracking-wider mb-2 font-semibold">{tx("Preliminary Grand Total", "प्रारम्भिक कुल लागत")}</p>
                 <div className="text-4xl font-black text-emerald-400 print:text-slate-900 tracking-tight">Rs. {totalCost.toLocaleString('en-IN')}</div>
               </div>
             </div>
@@ -731,7 +726,7 @@ export default function Home() {
                 </div>
                 <div className="bg-[#0F172A] px-4 py-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-[12px] font-extrabold text-white uppercase tracking-wider">{tx("Grand Total", "कुल जम्मा")} {includeExternal ? "(A + B)" : ""}</span>
+                    <span className="text-[12px] font-extrabold text-white uppercase tracking-wider">{tx("Preliminary Grand Total", "प्रारम्भिक कुल जम्मा")} {includeExternal ? "(A + B)" : ""}</span>
                     <span className="text-[16px] font-mono font-black text-emerald-400">Rs. {totalCost.toLocaleString("en-IN")}</span>
                   </div>
                   <p className="text-[9px] text-slate-400 mt-1.5 italic font-medium uppercase tracking-wide">
@@ -788,10 +783,10 @@ export default function Home() {
                 <ClipboardList className="h-5 w-5"/> {tx("Terms & Conditions", "नियम र सर्तहरू")}
               </h3>
               <ul className="text-[8px] text-blue-800 space-y-1.5 print:text-slate-700">
-                <li><strong>1. Validity:</strong> Estimate is valid for 90 days. Subject to ±10% market variation.</li>
+                <li><strong>1. Validity:</strong> Estimate is valid for 90 days. Subject to ±10–15% market variation.</li>
                 <li><strong>2. Exclusions:</strong> Land cost, municipality fees, architectural fees, furniture, and landscaping.</li>
                 <li><strong>3. VAT:</strong> Amounts are exclusive of VAT. VAT-registered contractors apply 13% extra on labor.</li>
-                <li><strong>4. Liability:</strong> ZILA is an estimation engine for banking and planning. Final material wastage may vary.</li>
+                <li><strong>4. Disclaimer:</strong> This is a Preliminary BOQ for planning and budgeting purposes only. It is not a certified engineering document and should not be submitted to financial institutions as a final valuation.</li>
               </ul>
             </div>
           </div>
@@ -805,17 +800,17 @@ export default function Home() {
                 <span className="text-[6px] font-bold uppercase mt-1 text-slate-500">Verify Online</span>
               </div>
               <div>
-                <h4 className="text-[12px] font-black text-slate-900 tracking-wider uppercase">{tx("Digitally Authenticated", "डिजिटल प्रमाणित")}</h4>
+                <h4 className="text-[12px] font-black text-slate-900 tracking-wider uppercase">{tx("Engineer Prepared", "इन्जिनियर द्वारा तयार")}</h4>
                 <p className="text-[9px] text-slate-500 mt-1 leading-relaxed">
-                  This BOQ is generated and verified by the ZILA Engineering Engine.<br/>
-                  <strong>Authorized by:</strong> Er. Angel Mainali (NEC Registered)<br/>
-                  <strong>Status:</strong> Approved for Bank Loan Processing
+                  This Preliminary BOQ is generated by the ZILA Engineering Engine.<br/>
+                  <strong>Prepared by:</strong> Er. Angel Mainali (NEC Registered Civil Engineer)<br/>
+                  <strong>Status:</strong> Preliminary Estimate — For Planning Reference Only
                 </p>
               </div>
             </div>
             <div className="text-right">
               <div className="inline-block border-2 border-emerald-600 text-emerald-700 font-black text-xl uppercase tracking-widest px-6 py-2 rounded-lg transform -rotate-6 opacity-80 print:opacity-100">
-                E-VERIFIED
+                PRELIMINARY
               </div>
             </div>
           </div>

@@ -6,61 +6,67 @@ export default function PrivacyPage() {
 
       {/* HEADER */}
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
-        <div className="font-bold text-xl tracking-tight text-slate-900">ZILA & ZILA LANDKIT</div>
+        <div className="font-bold text-xl tracking-tight text-slate-900">ZILA</div>
         <Link href="/" className="text-sm text-slate-500 hover:text-emerald-600 font-medium transition-colors">
-          ← Back to App
+          ← Back to Estimator
         </Link>
       </header>
 
       <main className="max-w-3xl mx-auto p-8 md:p-12 bg-white mt-8 rounded-2xl shadow-sm border border-slate-100 mb-12">
         <h1 className="text-3xl font-black mb-2 text-slate-900">Privacy Policy</h1>
-        <p className="mb-8 text-sm text-slate-500 font-medium">Last Updated: February 2026</p>
+        <p className="mb-8 text-sm text-slate-500 font-medium">Last Updated: March 2026</p>
 
         <div className="space-y-8 text-slate-700 leading-relaxed">
 
           <section>
             <h2 className="text-xl font-bold mb-3 text-slate-900 border-b pb-2">1. Introduction</h2>
             <p>
-              This Privacy Policy applies to the software suite developed by Er. Angel Mainali, which currently includes <strong>ZILA</strong> (a construction cost estimator web app) and <strong>Zila LandKit</strong> (a Chrome extension). We respect your privacy and are committed to protecting your data.
+              This Privacy Policy applies to <strong>ZILA</strong> — a preliminary construction cost estimator web application developed by Er. Angel Mainali (NEC Registered Civil Engineer, Kathmandu, Nepal). We respect your privacy and are committed to protecting your data. ZILA is a planning tool designed to help Nepali homeowners understand their construction costs before engaging contractors.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold mb-3 text-slate-900 border-b pb-2">2. Data We Collect</h2>
 
-            <h3 className="font-bold text-slate-800 mt-4 mb-2">A. For ZILA (Web App)</h3>
+            <h3 className="font-bold text-slate-800 mt-4 mb-2">Project Estimation Data</h3>
             <ul className="list-disc pl-5 space-y-2 mb-6">
-              <li><strong>Project Data:</strong> We collect the district, floor count, and area you input to generate accurate construction estimates.</li>
-              <li><strong>Payment Verification:</strong> If you purchase a premium report, we securely collect your name, phone number, and eSewa transaction ID strictly to verify the payment and unlock your document.</li>
+              <li><strong>Estimation Inputs:</strong> We collect the district, floor count, area, structure type, and finish quality you enter to generate your preliminary cost estimate. This data powers the calculation engine.</li>
+              <li><strong>Payment Verification:</strong> If you purchase a detailed Preliminary BOQ Report, we securely collect your name, phone number, and eSewa transaction ID strictly to verify the payment and unlock your document. This information is not used for any other purpose.</li>
             </ul>
 
-            <h3 className="font-bold text-slate-800 mt-4 mb-2">B. For Zila LandKit (Chrome Extension)</h3>
+            <h3 className="font-bold text-slate-800 mt-4 mb-2">What We Do Not Collect</h3>
             <ul className="list-disc pl-5 space-y-2">
-              <li><strong>Zero Remote Tracking:</strong> The extension operates entirely locally on your device. We do not track your browsing history, read your page content, or monitor the websites you visit.</li>
-              <li><strong>Local Processing:</strong> All land area, cost, and EMI calculations are performed locally within your browser.</li>
-              <li><strong>Local Storage:</strong> If you save a property or setting, it is stored securely within your browser&apos;s local storage. This data never leaves your device unless you explicitly opt into a future premium cloud-sync feature.</li>
+              <li>We do not collect your location, browsing history, or device information beyond what is necessary to serve the web application.</li>
+              <li>We do not use tracking pixels, third-party advertising scripts, or behavioral analytics.</li>
+              <li>We do not sell, trade, or rent your personal information to any third party.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-xl font-bold mb-3 text-slate-900 border-b pb-2">3. How We Use Your Data</h2>
             <p>
-              We use data solely to provide the core functionality of our web application (delivering verified PDF BOQ reports). <strong>We do not sell, trade, or rent your personal identification or phone numbers to third parties.</strong> Zila LandKit operates locally and does not actively harvest user data for monetization.
+              We use data solely to provide the core functionality of the ZILA web application — generating and delivering your Preliminary BOQ Report. Your phone number is used only for payment verification and, if needed, to contact you regarding your report. <strong>We do not use your data for marketing, profiling, or any purpose beyond your estimate request.</strong>
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold mb-3 text-slate-900 border-b pb-2">4. Data Storage & Security</h2>
+            <h2 className="text-xl font-bold mb-3 text-slate-900 border-b pb-2">4. Important Disclaimer</h2>
             <p>
-              All data is stored securely using Supabase (a secure, enterprise-grade backend).
-              All communication between your device and our database is encrypted via modern HTTPS protocols.
+              ZILA generates <strong>Preliminary Cost Estimates</strong> for planning and budgeting purposes only. The estimates are based on current district-level market data and NBC 105:2025 structural guidelines. They are <strong>not certified engineering valuations</strong> and should not be submitted to financial institutions as formal documents. Always engage a licensed professional engineer for final project assessment and municipal approvals.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold mb-3 text-slate-900 border-b pb-2">5. Contact the Developer</h2>
+            <h2 className="text-xl font-bold mb-3 text-slate-900 border-b pb-2">5. Data Storage & Security</h2>
             <p>
-              If you have any questions regarding this policy, the apps, or business inquiries, please contact me directly at:
+              All data is stored securely using Supabase (enterprise-grade, ISO 27001 compliant backend infrastructure). All communication between your device and our servers is encrypted via HTTPS. Report data is retained for 90 days from the date of generation, after which it is automatically purged from active records.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold mb-3 text-slate-900 border-b pb-2">6. Contact the Developer</h2>
+            <p>
+              If you have any questions regarding this policy, wish to request deletion of your data, or have business inquiries, please contact directly at:
               <a href="mailto:er.angel.mainali@gmail.com" className="text-emerald-600 font-bold ml-1 hover:underline">er.angel.mainali@gmail.com</a>
             </p>
           </section>

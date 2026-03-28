@@ -53,21 +53,16 @@ function DonationCard({ title, subtitle, badge, cta, action, isDark, accent, chi
 }
 
 export default function DonatePage() {
-  const [isDark, setIsDark] = useState(true);
+  // Light mode is default
+  const [isDark, setIsDark] = useState(false);
   const [lang, setLang] = useState<"en" | "ne">("en");
- 
 
- 
-
-  // 2. Run only when the theme toggles
   useEffect(() => {
     if (isDark) document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
   }, [isDark]);
 
   const tx = (en: string, ne: string) => lang === "en" ? en : ne;
-
- 
 
   return (
     <div className={`min-h-screen relative overflow-x-hidden transition-colors duration-300 ${isDark ? "bg-[#060a10]" : "bg-slate-50"}`} style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -134,10 +129,10 @@ export default function DonatePage() {
                   <MapPin size={11} /><span>{tx("Kathmandu Valley, Nepal", "काठमाडौं उपत्यका, नेपाल")}</span><span className="opacity-40">·</span><span>{tx("Age 25", "२५ वर्ष")}</span>
                 </div>
                 <p className={`text-sm leading-relaxed mb-5 ${isDark ? 'text-white/50' : 'text-slate-700'}`}>
-                  {tx("I'm a structural engineer specializing in hydropower projects. After watching my family get deceived by inflated contractor quotes with no way to verify costs, I built ZILA — Nepal's most accurate construction cost estimator — to give ordinary people the same information contractors try to hide.", "म जलविद्युत परियोजनाहरूमा विशेषज्ञता हासिल गरेको स्ट्रक्चरल इन्जिनियर हुँ। मेरो परिवारलाई ठेकेदारले दिएको महँगो कोटेशन हेरेपछि र लागत प्रमाणित गर्ने कुनै उपाय नभएपछि, मैले ZILA बनाएँ — नेपालको सबैभन्दा भरपर्दो निर्माण लागत अनुमानक — ताकि सर्वसाधारणले पनि त्यही जानकारी पाउन सकून् जुन ठेकेदारहरू लुकाउन चाहन्छन्।")}
+                  {tx("I'm a registered civil engineer specializing in hydropower projects. After watching my family get deceived by inflated contractor quotes with no way to verify costs, I built ZILA — Nepal's most detailed preliminary construction cost estimator — so that ordinary families can know what their home actually costs before pouring their life savings into it.", "म जलविद्युत परियोजनाहरूमा विशेषज्ञता हासिल गरेको दर्ता सिभिल इन्जिनियर हुँ। मेरो परिवारलाई ठेकेदारले दिएको महँगो कोटेशन हेरेपछि र लागत प्रमाणित गर्ने कुनै उपाय नभएपछि, मैले ZILA बनाएँ — नेपालको सबैभन्दा विस्तृत प्रारम्भिक निर्माण लागत अनुमानक — ताकि सर्वसाधारण परिवारहरूले आफ्नो जीवनभरको बचत ठेल्नु अघि नै घरको वास्तविक लागत थाहा पाउन सकून्।")}
                 </p>
                 <div className="flex items-center gap-4 flex-wrap">
-                  {[{ icon: Award, label: tx("Structural Engineer", "स्ट्रक्चरल इन्जिनियर") }, { icon: Cpu, label: tx("Indie Builder", "इन्डी बिल्डर") }, { icon: Globe, label: tx("Open to Collaboration", "सहकार्यको लागि खुला") }].map(({ icon: Icon, label }) => (
+                  {[{ icon: Award, label: tx("NEC Registered Engineer", "NEC दर्ता इन्जिनियर") }, { icon: Cpu, label: tx("Indie Builder", "इन्डी बिल्डर") }, { icon: Globe, label: tx("Open to Collaboration", "सहकार्यको लागि खुला") }].map(({ icon: Icon, label }) => (
                     <div key={label} className="flex items-center gap-1.5"><Icon size={12} className="text-emerald-500" /><span className={`text-xs ${isDark ? 'text-white/40' : 'text-slate-500'}`}>{label}</span></div>
                   ))}
                 </div>
@@ -156,19 +151,19 @@ export default function DonatePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-24">
           <div>
             <p className="text-xs font-semibold tracking-widest text-emerald-500 uppercase mb-4">{tx("The Mission", "अभियान")}</p>
-            <h2 className={`text-3xl font-bold mb-5 leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`} style={{ fontFamily: "'Syne', sans-serif" }}>{tx("Transparency is a right, not a luxury.", "पारदर्शिता अधिकार हो, विलासिता होइन।")}</h2>
+            <h2 className={`text-3xl font-bold mb-5 leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`} style={{ fontFamily: "'Syne', sans-serif" }}>{tx("Know your numbers before you pour your savings.", "पैसा ठेल्नु अघि आफ्नो लागत जान्नुहोस्।")}</h2>
             <div className={`space-y-4 text-sm leading-relaxed ${isDark ? 'text-white/45' : 'text-slate-700'}`}>
               <p>{tx("In Nepal, the construction industry runs on information asymmetry. Contractors quote wildly inflated prices because homeowners have no benchmark. A Rs. 60 lakh house becomes Rs. 1 crore on paper.", "नेपालमा निर्माण उद्योग सूचनाको असमानतामा चल्छ। घरधनीहरूसँग कुनै मापदण्ड नभएकोले ठेकेदारहरूले धेरै महँगो मूल्य बताउँछन्। ६० लाखको घर कागजमा १ करोड हुन्छ।")}</p>
-              <p>{tx("ZILA breaks this cycle by providing engineer-verified cost data across 50 districts, factoring in logistics, local material prices, and labour rates — updated regularly.", "ZILA ले ५० जिल्लाहरूमा इन्जिनियर-प्रमाणित लागत डाटा प्रदान गरेर यो चक्र तोड्छ, जसमा रसद, स्थानीय सामग्रीको मूल्य, र श्रम दरहरू समावेश छन्।")}</p>
-              <p>{tx("Every Rs. 199 report funds server costs, data collection, and keeps this tool free to explore. You're not buying software — you're funding transparency.", "हरेक १९९ रुपैयाँको रिपोर्टले सर्भर लागत र डाटा सङ्कलनमा मद्दत गर्छ। तपाईं सफ्टवेयर किनिरहनु भएको छैन — पारदर्शितालाई आर्थिक सहयोग गर्दै हुनुहुन्छ।")}</p>
+              <p>{tx("ZILA gives you a detailed Preliminary BOQ — a phase-by-phase breakdown of what your house should actually cost, built on real district-level material and labor rates, and enforcing NBC 105:2025 seismic standards. Walk into your contractor meeting informed.", "ZILA ले तपाईंलाई विस्तृत प्रारम्भिक BOQ दिन्छ — तपाईंको घर वास्तवमा कति पर्नु पर्छ भन्ने चरण-वार विभाजन, वास्तविक जिल्ला-स्तरीय सामग्री र श्रम दरहरूमा आधारित। ठेकेदारसँग भेट्न जानु अघि तयारी गर्नुहोस्।")}</p>
+              <p>{tx("Every Rs. 199 report funds server costs, data verification, and keeps this tool free to explore. You're not buying software — you're funding transparency for every Nepali family building a home.", "हरेक १९९ रुपैयाँको रिपोर्टले सर्भर लागत र डाटा प्रमाणीकरणमा मद्दत गर्छ। तपाईं सफ्टवेयर किनिरहनु भएको छैन — घर बनाउने हरेक नेपाली परिवारको लागि पारदर्शितालाई आर्थिक सहयोग गर्दै हुनुहुन्छ।")}</p>
             </div>
           </div>
           <div>
             <p className={`text-xs font-semibold tracking-widest uppercase mb-4 ${isDark ? 'text-white/20' : 'text-slate-400'}`}>{tx("Journey", "यात्रा")}</p>
             <TimelineItem isDark={isDark} year="2020" event={tx("Started Civil Engineering career", "सिभिल इन्जिनियरिङ क्यारियर सुरु")} detail={tx("Joined hydropower sector, worked on penstock design and anchor block analysis.", "जलविद्युत क्षेत्रमा आबद्ध, पेनस्टक डिजाइन र एन्कर ब्लक विश्लेषणमा काम।")} active={false} />
             <TimelineItem isDark={isDark} year="2023" event={tx("Witnessed contractor fraud firsthand", "ठेकेदारको ठगी प्रत्यक्ष देखियो")} detail={tx("Family received wildly inflated construction quotes. Decided to build a solution.", "परिवारले धेरै महँगो निर्माण कोटेशन प्राप्त गर्यो। समाधान बनाउने निर्णय।")} active={false} />
-            <TimelineItem isDark={isDark} year="2025" event={tx("Built ZILA from scratch", "ZILA को निर्माण")} detail={tx("Learned Next.js, built a 50-district cost database, launched first version.", "Next.js सिकेर ५० जिल्लाको लागत डाटाबेस बनाएँ।")} active={true} />
-            <TimelineItem isDark={isDark} year="2026 →" event={tx("Advancing Infrastructure", "पूर्वाधार विकास")} detail={tx("Continuing to build ZILA remotely while advancing structural engineering research.", "स्ट्रक्चरल इन्जिनियरिङ अनुसन्धानलाई अगाडि बढाउँदै ZILA निर्माण जारी।")} active={false} />
+            <TimelineItem isDark={isDark} year="2025" event={tx("Built ZILA from scratch", "ZILA को निर्माण")} detail={tx("Learned Next.js, built a 50-district preliminary cost database, launched first version.", "Next.js सिकेर ५० जिल्लाको प्रारम्भिक लागत डाटाबेस बनाएँ।")} active={true} />
+            <TimelineItem isDark={isDark} year="2026 →" event={tx("Improving data, expanding districts", "डाटा सुधार, जिल्लाहरू विस्तार")} detail={tx("Continuously improving the pricing matrix with field-verified data from active hydropower and infrastructure projects.", "सक्रिय जलविद्युत र पूर्वाधार परियोजनाहरूबाट क्षेत्र-प्रमाणित डाटाले मूल्य म्याट्रिक्स निरन्तर सुधार।")} active={false} />
           </div>
         </div>
 
@@ -177,7 +172,7 @@ export default function DonatePage() {
             <p className="text-xs font-semibold tracking-widest text-emerald-500 uppercase mb-3">{tx("Support the mission", "अभियानलाई समर्थन गर्नुहोस्")}</p>
             <h2 className={`text-4xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`} style={{ fontFamily: "'Syne', sans-serif" }}>{tx("Keep ZILA alive & free.", "ZILA लाई जीवित र नि:शुल्क राख्नुहोस्।")}</h2>
             <p className={`text-sm max-w-md mx-auto leading-relaxed ${isDark ? 'text-white/35' : 'text-slate-600'}`}>
-              {tx("ZILA's core tool is free forever. Your support covers server costs, data updates, and the time that goes into building tools for Nepal.", "ZILA सधैं नि:शुल्क छ। तपाईंको समर्थनले सर्भर लागत र डाटा अपडेट कभर गर्छ।")}
+              {tx("ZILA's core estimator is free to use forever. Your support covers server costs, data updates, and the engineering hours that go into keeping the numbers accurate.", "ZILA को मूल अनुमानक सधैं नि:शुल्क छ। तपाईंको समर्थनले सर्भर लागत, डाटा अपडेट र सङ्ख्याहरू सटीक राख्न लाग्ने इन्जिनियरिङ समय कभर गर्छ।")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -191,7 +186,7 @@ export default function DonatePage() {
                 ))}
               </div>
             </DonationCard>
-            <DonationCard isDark={isDark} title={tx("Support from Nepal", "नेपालबाट समर्थन")} subtitle={tx("Direct eSewa or bank transfer. Every rupee goes to building better tools.", "सिधै eSewa वा बैंक ट्रान्सफर। हरेक रुपैयाँले राम्रो उपकरण बनाउन मद्दत गर्छ।")} badge={<><Star size={10} className="fill-current" /> Local · Nepali Rupees</>} cta={tx("Use these details directly in your app", "तपाईंको एपमा यी विवरणहरू प्रयोग गर्नुहोस्")} action={() => alert(tx('Open your eSewa or Bank app and use these details.', 'आफ्नो eSewa वा बैंक एप खोल्नुहोस् र यी विवरणहरू प्रयोग गर्नुहोस्।'))} accent="#10b981" featured={true}>
+            <DonationCard isDark={isDark} title={tx("Support from Nepal", "नेपालबाट समर्थन")} subtitle={tx("Direct eSewa or bank transfer. Every rupee goes to building better, more accurate tools.", "सिधै eSewa वा बैंक ट्रान्सफर। हरेक रुपैयाँले अझ सटीक उपकरण बनाउन मद्दत गर्छ।")} badge={<><Star size={10} className="fill-current" /> Local · Nepali Rupees</>} cta={tx("Use these details directly in your app", "तपाईंको एपमा यी विवरणहरू प्रयोग गर्नुहोस्")} action={() => alert(tx('Open your eSewa or Bank app and use these details.', 'आफ्नो eSewa वा बैंक एप खोल्नुहोस् र यी विवरणहरू प्रयोग गर्नुहोस्।'))} accent="#10b981" featured={true}>
               <div className="space-y-2.5 mb-2">
                 {[{ label: "eSewa ID", value: "9840185500", icon: "📱" }, { label: "Bank", value: "NIC Asia · Kathmandu", icon: "🏦" }, { label: "A/C Number", value: "2825750952307001", icon: "💳" }].map(({ label, value, icon }) => (
                   <div key={label} className={`flex items-center justify-between px-4 py-2.5 rounded-xl border ${isDark ? 'border-white/6 bg-white/[0.03]' : 'border-emerald-500/10 bg-white'}`}>
@@ -209,8 +204,8 @@ export default function DonatePage() {
           <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.2) 0%, transparent 50%)" }} />
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 p-8">
             <div>
-              <h3 className="text-xl font-bold text-white mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>{tx("Have a project in mind?", "कुनै परियोजना दिमागमा छ?")}</h3>
-              <p className="text-sm text-emerald-100/80">{tx("I consult on structural engineering, hydropower design, and engineering SaaS products.", "म स्ट्रक्चरल इन्जिनियरिङ र जलविद्युत डिजाइनमा परामर्श दिन्छु।")}</p>
+              <h3 className="text-xl font-bold text-white mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>{tx("Have a construction project in mind?", "कुनै निर्माण परियोजना दिमागमा छ?")}</h3>
+              <p className="text-sm text-emerald-100/80">{tx("I consult on structural engineering, hydropower design, and construction cost planning.", "म स्ट्रक्चरल इन्जिनियरिङ, जलविद्युत डिजाइन र निर्माण लागत योजनामा परामर्श दिन्छु।")}</p>
             </div>
             <a href="mailto:er.angel.mainali@gmail.com" className="shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-semibold text-sm hover:bg-white/20 transition-colors backdrop-blur-sm">
               <Mail size={15} /> {tx("Get in touch", "सम्पर्क गर्नुहोस्")}
